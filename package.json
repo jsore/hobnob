@@ -1,0 +1,15 @@
+{
+  "name": "hobnob",
+  "version": "0.1.0",
+  "description": "Back end for a simple user directory API with recommendation engine",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com-jsore:jsore/hobnob.git"
+  },
+  "author": "Justin Sorensen <justin@jsore.com> (https://jsore.com)",
+  "license": "ISC"
+}
