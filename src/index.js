@@ -1,3 +1,7 @@
+/**
+ * hobnob/src/index.js
+ */
+
 //const http = require('http');   // CommonJS syntax
 import http from 'http';        // ES6 syntax
 const requestHandler = function (req, res) {
