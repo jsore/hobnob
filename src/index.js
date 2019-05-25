@@ -12,7 +12,6 @@
  *   $ node dist/index.js   # run it
  *
  *   $ yarn run serve       # build then run it
- *
  */
 
 /** bring in ESNext features */
