@@ -15,14 +15,14 @@
  */
 
 /** bring in ESNext features */
-//const http = require('http');   // CommonJS syntax
-import "@babel/polyfill";         // ECMA2015/ES6
+// const http = require('http');   // CommonJS syntax
+import '@babel/polyfill'; // ECMA2015/ES6
 import http from 'http';
 
 const requestHandler = function (req, res) {
-  res.writeHead(200, {'Content-Type': 'text/plain'});
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
   /** finsih prepping response and send to client */
   res.end('Yo yo yo');
-}
+};
 const server = http.createServer(requestHandler);
 server.listen(8080);
