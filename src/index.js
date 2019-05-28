@@ -3,7 +3,7 @@
  *
  * run: $ yarn run watch     # add nodemon for auto restarts
  *
- * depreciated:
+ * depreciated usage:
  *
  *   $ rm -rf dist/ && npx babel src -d dist   # build
  *   $ node dist/index.js                      # run it

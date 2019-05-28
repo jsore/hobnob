@@ -28,7 +28,8 @@
     "eslint": "^5.16.0",
     "husky": "^2.3.0",
     "nodemon": "^1.19.0",
-    "rimraf": "^2.6.3"
+    "rimraf": "^2.6.3",
+    "superagent": "^5.0.5"
   },
   "dependencies": {
     "@babel/polyfill": "^7.4.4",
