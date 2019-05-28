@@ -1,0 +1,37 @@
+/**
+ * hobnob/spec/cucumber/steps/index.js
+ *
+ * JS representation of Gherkin .feature steps
+ * ( step definitions )
+ *
+ * $ npx cucumber-js spec/cucumber/features --require spec/cucumber/steps
+ */
+
+import { When, Then } from 'cucumber';
+
+/** Cucumber runs the appropriate definition due to pattern matching */
+
+/** When/Then(<pattern>, <code function>) */
+When('the client creates a POST request to /users', function (callback) {
+  callback(null, 'pending');
+});
+
+When('attaches a generic empty payload', function (callback) {
+  callback(null, 'pending');
+});
+
+When('sends the request', function (callback) {
+  callback(null, 'pending');
+});
+
+Then('our API should respond with a 400 HTTP status code', function (callback) {
+  callback(null, 'pending');
+});
+
+Then('the payload of the response should be a JSON object', function (callback) {
+  callback(null, 'pending');
+});
+
+Then('contains a message property which says "Payload should not be empty"', function (callback) {
+  callback(null, 'pending');
+});
