@@ -4,69 +4,121 @@
  * JS representation of Gherkin .feature steps
  * ( step definitions )
  *
- * run: $ yarn run test:e2e
+ * run: $ yarn run test:e2e    # after starting API server
  *
  * depreciated usage:
  *
- *   $ npx cucumber-js spec/cucumber/features --require spec/cucumber/steps
+ *   $ cucumber-js spec/cucumber/features \
+ *     --require-module @babel/register \
+ *     --require spec/cucumber/steps
+ *
+ *   $ npx cucumber-js spec/cucumber/features \
+ *     --require spec/cucumber/steps
  */
 
 import superagent from 'superagent';
 import { When, Then } from 'cucumber';
+
+
 /** file scoped variables, accessible by each subsequent step */
-let request;
-let result;
-let error;
+// let request;
+// let result;
+// let error;
+// let payload;
+/**
+ * refactored: account for different scenarios in this file
+ * using the same definitions, but having different properties
+ * for the same variables
+ * ( isolating scenario contexts by using contxt objects )
+ * ( Cucumber 'worlds' )
+ */
+
+
+/*----------  step definitions  ----------*/
+
 
 /** Cucumber runs the appropriate definition due to pattern matching */
 
-/** 1st step definition... */
+
+/**
+ * start building the request with a new request object...
+ */
 When('the client creates a POST request to /users', function () {
-  /** start a new request object */
-  request = superagent('POST', 'localhost:8080/users');
+  /** refactor: use context object instead of global var */
+  //request = superagent('POST', 'localhost:8080/users');
+  this.request = superagent('POST', 'localhost:8080/users');
 });
 
-/** ...2nd step definition... */
 When('attaches a generic empty payload', function () {
   /** sending empty payloads is superagent's default behavior */
   return undefined;
 });
 
-/** ...3rd step definition... */
+/**
+ * ...complete and send request to testing API server with a
+ * callback specified to keep next step from running early...
+ */
 When('sends the request', function (callback) {
-  /** specify a callback so the next step doesn't run prematurely */
-
-  /** send request from 1st & 2nd steps to testing API server... */
-  request
+  //request
+  this.request
     .then((response) => {
-      /** ...and save the response elsewhere... */
-      result = response.res;
-      /** ...then finally callback() after response received and saved */
+      /**
+       * ...and save the response elsewhere then finally hit
+       * callback() after response received and saved
+       */
+      this.response = response.res;
       callback();
     })
-    .catch((errResponse) => {
-      error = errResponse.response;
+    .catch((error) => {
+      this.response = error.response;
       callback();
     });
 });
 
-/** ...4th step definition... */
+
+
+/**
+ * to pass: check method and path of req in requestHandler,
+ * if match POST & /users, send 400
+ */
 Then('our API should respond with a 400 HTTP status code', function () {
-  /**
-   * passing: check method and path of req in requestHandler,
-   * if match POST & /users, send 400
-   */
-  if (error.statusCode !== 400) {
+  if (this.response.statusCode !== 400) {
+    /** generic assertion failure */
     throw new Error();
   }
 });
 
-/** ...5th step definition... */
-Then('the payload of the response should be a JSON object', function (callback) {
-  callback(null, 'pending');
+/**
+ * to pass: client must send valid JSON object
+ */
+Then('the payload of the response should be a JSON object', function () {
+  const response = result || error;
+
+  /** review body and content-type header for JSON */
+  const contentType = this.response.headers['Content-Type'] || this.response.headers['content-type'];
+  if (!contentType || !contentType.includes('application/json')) {
+    /** generic assertion failure */
+    throw new Error('Response not of Content-Type application/json');
+  }
+
+  /** review validity of the JSON if JSON received */
+  try {
+    //payload = JSON.parse(response.text);
+    this.responsePayload = JSON.parse(this.response.text);
+  } catch (e) {
+    /** generic assertion failure */
+    throw new Error('Response not a valid JSON object');
+  }
 });
 
-/** ...6th step definition */
-Then('contains a message property which says "Payload should not be empty"', function (callback) {
-  callback(null, 'pending');
+/**
+ * to pass: error object must contain property of message
+ * with appropriate message text
+ */
+Then('contains a message property which says "Payload should not be empty"', function () {
+  //if (payload.message !== 'Payload should not be empty') {
+  if (this.responsePayload.message !== 'Payload should not be empty') {
+    /** generic assertion failure */
+    throw new Error();
+  }
 });
