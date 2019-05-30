@@ -56,7 +56,8 @@ import assert from 'assert';
 
 /** Cucumber runs the appropriate definition due to pattern matching */
 
-/** refactor: keep closer to DRY */
+
+/** refactor: stay "DRY'er" */
 // /**
 //  * start building the request with a new request object...
 //  */
@@ -186,16 +187,22 @@ import assert from 'assert';
 // });
 
 
+/**
+ * this is probably a bad practice, but I'm sick of overly
+ * long expressions...nobody is gonna see this so ¯\_(ツ)_/¯
+ */
 const host = process.env.SERVER_HOSTNAME;
 const port = process.env.SERVER_PORT;
-const httpReq = /^the client creates a (GET|POST|PATCH|PUT|DELETE|OPTIONS|HEAD) request to ([/\w-:.]+)$/;
-
+const whenHTTP = /^the client creates a (GET|POST|PATCH|PUT|DELETE|OPTIONS|HEAD) request to ([/\w-:.]+)$/;
+const caseXML = '<?xml version="1.0" encoding="UTF-8" ?><email>justin@jsore.com</email>';
+const firstThen = /^our API should respond with a ([1-5]\d{2}) HTTP status code$/;
+const secondThen = /^the payload of the response should be a JSON object$/;
+const thirdThen = /^contains a message property which says (?:"|')(.*)(?:"|')$/;
 
 /** start a new request with a new request object */
-When (httpReq, function(method, path) {
+When (whenHTTP, function(method, path) {
   this.request = superagent(method, `${host}:${port}${path}`);
 });
-
 
 /** case values pulled from scenario outline's datatable */
 When(/^attaches a generic (.+) payload$/, function (payloadType) {
@@ -207,14 +214,14 @@ When(/^attaches a generic (.+) payload$/, function (payloadType) {
       break;
     case 'non-JSON':
       this.request
-        .send('<?xml version="1.0" encoding="UTF-8" ?><email>justin@jsore.com</email>')
+        .send(`${caseXML}`)
         .set('Content-Type', 'text/html');
       break;
+    /** superagent sends a blank payload by default, use it */
     case 'empty':
     default:
   }
 });
-
 
 When(/^sends the request$/, function(callback) {
   /** wait until response received... */
@@ -231,22 +238,20 @@ When(/^sends the request$/, function(callback) {
 });
 
 
-Then(/^our API should respond with a ([1-5]\d{2}) HTTP status code$/, function (statusCode) {
+Then(firstThen, function (statusCode) {
   assert.equal(this.response.statusCode, statusCode);
 });
 
 
-Then(/^the payload of the response should be a JSON object$/, function () {
+Then(secondThen, function () {
   /** parse header to verify we're sending back JSON */
   const contentType = this.response.headers['Content-Type'] ||
     this.response.headers['content-type'];
   if (!contentType || !contentType.includes('application/json')) {
     throw new Error('Response not of Content-Type application/json');
   }
-
-  /** check for valid JSON */
   try {
-    /** throws error if .parse() fails */
+    /** check for valid JSON, throws error if .parse() fails */
     this.responsePayload = JSON.parse(this.response.text);
   } catch (e) {
     throw new Error('Response not a valid JSON object');
@@ -254,6 +259,6 @@ Then(/^the payload of the response should be a JSON object$/, function () {
 });
 
 
-Then(/^contains a mesage property which says (?:"|')(.*)(?:"|')$/, function (message) {
+Then(thirdThen, function (message) {
   assert.equal(this.responsePayload.message, message);
 });
