@@ -25,12 +25,12 @@ Feature: Create User
     And the payload of the response should be a JSON object
     And contains a message property which says <message>
 
-  Examples:
+    Examples:
 
-  # loop through each scenario fact row in this datatable
-  | payloadType | statusCode | message                                                       |
-  | empty       | 400        | "Payload should not be empty"                                 |
-  | non-JSON    | 415        | 'The "Content-Type" header must always be "application/json"' |
-  | malformed   | 400        | "Payload should be in JSON format"                            |
+    # loop through each scenario fact row in this datatable
+    | payloadType | statusCode | message                                                       |
+    | empty       | 400        | "Payload should not be empty"                                 |
+    | non-JSON    | 415        | 'The "Content-Type" header must always be "application/json"' |
+    | malformed   | 400        | "Payload should be in JSON format"                            |
 
 
