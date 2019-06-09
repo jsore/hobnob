@@ -27,6 +27,11 @@ import bodyParser from 'body-parser';
 
 // const server = http.createServer(requestHandler);
 const app = express();
+/**
+ * bodyParser.json method returns middleware, use it to parse
+ * JSON requests and assign parsed payload to req object body
+ */
+app.use(bodyParser.json({ limit: 1e6 }));
 
 
 /**
@@ -83,11 +88,6 @@ function checkContentTypeIsJson(req, res, next) {
 app.use(checkEmptyPayload);
 app.use(checkContentTypeIsSet);
 app.use(checkContentTypeIsJson);
-/**
- * bodyParser.json method returns middleware, use it to parse
- * JSON requests and assign parsed payload to req object body
- */
-app.use(bodyParser.json({ limit: 1e6 }));
 
 
 /** refactor: modularization, move to app.use(middleware) */
@@ -110,8 +110,47 @@ app.use(bodyParser.json({ limit: 1e6 }));
 //     });
 //   }
 // });
-/** payload validation happens in custom middleware */
-app.post('/users', (req, res, next) => { next(); });
+/** payload header validation happens in custom middleware */
+app.post('/users', (req, res, next) => {
+  /**
+   * logic for payload body validation, checks that user
+   * entered required fields
+   */
+  if (
+    !Object.prototype.hasOwnProperty.call(req.body, 'email')
+    || !Object.prototype.hasOwnProperty.call(req.body, 'password')
+  ) {
+    res.status(400);
+    res.set('Content-Type', 'application/json');
+    res.json({
+      message: 'Payload must contain at least the email and password fields',
+    });
+  }
+  // if (
+  //   typeof req.body.email !== 'string'
+  //   || typeof req.body.password
+  /** emails and passwords should only be strings */
+  if (
+    typeof req.body.email !== 'string'
+    || typeof req.body.password !== 'string'
+  ) {
+    res.status(400);
+    res.set('Content-Type', 'application/json');
+    res.json({
+      message: 'The email and password fields must be of type string',
+    });
+    // return;
+  }
+  /** we only want to accept valid email addresses */
+  if (!/^[\w.+]+@\w+\.\w+$/.test(req.body.email)) {
+    res.status(400);
+    res.set('Content-Type', 'application/json');
+    res.json({ message: 'The email field must be a valid email.' });
+    // lint error: Unnecessary return statement
+    // return;
+  }
+  next();
+});
 
 
 /**
