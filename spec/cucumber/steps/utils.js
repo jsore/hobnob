@@ -4,6 +4,9 @@
  * general testing support, generate test payloads
  */
 
+/**
+ * generate a valid Create User payload when called
+ */
 function getValidPayload(type) {
   const lowercaseType = type.toLowerCase();
   switch (lowercaseType) {

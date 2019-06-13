@@ -24,9 +24,23 @@
 import '@babel/polyfill';
 import express from 'express';
 import bodyParser from 'body-parser';
+import elasticsearch from 'elasticsearch';
+
+
+// const host = process.env.SERVER_HOSTNAME;
+// const port = process.env.SERVER_PORT;
+const esProtocol = process.env.ELASTICSEACH_PROTOCOL;
+const esHost = process.env.ELASTICSEACH_HOSTNAME;
+const esPort = process.env.ELASTICSEACH_PORT;
+
+const client = new elasticsearch.Client({
+  host: `${esProtocol}://${esHost}:${esPort}`,
+});
 
 // const server = http.createServer(requestHandler);
 const app = express();
+
+
 /**
  * bodyParser.json method returns middleware, use it to parse
  * JSON requests and assign parsed payload to req object body
@@ -35,9 +49,8 @@ app.use(bodyParser.json({ limit: 1e6 }));
 
 
 /**
- * parsing and validating the request payload
+ * parsing and validating the request payload middlewares
  */
-
 function checkEmptyPayload(req, res, next) {
   /** if client request payload is empty */
   if (
@@ -53,7 +66,6 @@ function checkEmptyPayload(req, res, next) {
   }
   next();
 }
-
 function checkContentTypeIsSet(req, res, next) {
   /** headers with content must specify their body is JSON */
   if (
@@ -70,7 +82,6 @@ function checkContentTypeIsSet(req, res, next) {
   }
   next();
 }
-
 function checkContentTypeIsJson(req, res, next) {
   /** if reqyest payload isn't JSON or is malformed JSON */
   if (!req.headers['content-type'].includes('application/json')) {
@@ -83,8 +94,6 @@ function checkContentTypeIsJson(req, res, next) {
   }
   next();
 }
-
-
 app.use(checkEmptyPayload);
 app.use(checkContentTypeIsSet);
 app.use(checkContentTypeIsJson);
@@ -126,9 +135,7 @@ app.post('/users', (req, res, next) => {
       message: 'Payload must contain at least the email and password fields',
     });
   }
-  // if (
-  //   typeof req.body.email !== 'string'
-  //   || typeof req.body.password
+
   /** emails and passwords should only be strings */
   if (
     typeof req.body.email !== 'string'
@@ -141,6 +148,7 @@ app.post('/users', (req, res, next) => {
     });
     // return;
   }
+
   /** we only want to accept valid email addresses */
   if (!/^[\w.+]+@\w+\.\w+$/.test(req.body.email)) {
     res.status(400);
@@ -149,6 +157,24 @@ app.post('/users', (req, res, next) => {
     // lint error: Unnecessary return statement
     // return;
   }
+
+  /** succesful create user attempt, validate DB call was good */
+  client.index({
+    index: 'hobnob',
+    type: 'user',
+    body: req.body,
+  }).then((result) => {
+    /** return promise resolving to new ID to client */
+    res.status(201);
+    res.set('Content-Type', 'text/plain');
+    res.send(result._id);
+  }).catch(() => {
+    /** or tell client request valid but server having issues */
+    res.status(500);
+    res.set('Content-Type', 'application/json');
+    res.json({ message: 'Internal Server Error' });
+  });
+
   next();
 });
 
@@ -173,6 +199,7 @@ app.use((err, req, res, next) => {
   }
   next();
 });
+
 
 /** refactor: improve request handler definitions for each route */
 // const requestHandler = function (req, res) {
@@ -242,6 +269,7 @@ app.use((err, req, res, next) => {
 //     res.end('I know a UDP joke, but you might not get it.');
 //   }
 // };
+
 
 // server.listen(8080);
 app.listen(process.env.SERVER_PORT, () => {
