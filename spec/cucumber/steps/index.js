@@ -58,6 +58,7 @@ const port = process.env.SERVER_PORT;
 const esProtocol = process.env.ELASTICSEACH_PROTOCOL;
 const esHost = process.env.ELASTICSEACH_HOSTNAME;
 const esPort = process.env.ELASTICSEACH_PORT;
+const esIndex = process.env.ELASTICSEARCH_INDEX;
 
 
 /** give ES instance a custom host option */
@@ -244,7 +245,8 @@ Then(/^the payload object should be added to the database, grouped under the "([
    * the user document is stored in _source key
    */
   client.get({
-    index: 'hobnob',
+    // index: 'hobnob',
+    index: esIndex,
     type: type,
     id: this.responsePayload
   }).then((result) => {
@@ -258,7 +260,8 @@ Then(/^the payload object should be added to the database, grouped under the "([
 Then('the newly-created user should be deleted', function () {
   /** delete mock users by ID */
   client.delete({
-    index: 'hobnob',
+    // index: 'hobnob',
+    index: esIndex,
     type: this.type,
     id: this.responsePayload,
   }).then(function (res) {

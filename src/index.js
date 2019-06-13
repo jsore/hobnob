@@ -32,6 +32,7 @@ import elasticsearch from 'elasticsearch';
 const esProtocol = process.env.ELASTICSEACH_PROTOCOL;
 const esHost = process.env.ELASTICSEACH_HOSTNAME;
 const esPort = process.env.ELASTICSEACH_PORT;
+const esIndex = process.env.ELASTICSEARCH_INDEX;
 
 const client = new elasticsearch.Client({
   host: `${esProtocol}://${esHost}:${esPort}`,
@@ -160,7 +161,8 @@ app.post('/users', (req, res, next) => {
 
   /** succesful create user attempt, validate DB call was good */
   client.index({
-    index: 'hobnob',
+    // index: 'hobnob',
+    index: esIndex,
     type: 'user',
     body: req.body,
   }).then((result) => {
