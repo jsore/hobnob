@@ -29,13 +29,14 @@ import elasticsearch from 'elasticsearch';
 
 // const host = process.env.SERVER_HOSTNAME;
 // const port = process.env.SERVER_PORT;
-const esProtocol = process.env.ELASTICSEACH_PROTOCOL;
+// const esProtocol = process.env.ELASTICSEACH_PROTOCOL;
 const esHost = process.env.ELASTICSEACH_HOSTNAME;
 const esPort = process.env.ELASTICSEACH_PORT;
 const esIndex = process.env.ELASTICSEARCH_INDEX;
 
 const client = new elasticsearch.Client({
-  host: `${esProtocol}://${esHost}:${esPort}`,
+  // host: `${esProtocol}://${esHost}:${esPort}`,
+  host: `${esHost}:${esPort}`,
 });
 
 // const server = http.createServer(requestHandler);
