@@ -1,6 +1,8 @@
 /**
  * hobnob/src/index.js
  *
+ * entry point for server and API
+ *
  * run: $ yarn run watch     # add nodemon for auto restarts
  *
  * depreciated usage:
@@ -25,6 +27,12 @@ import '@babel/polyfill';
 import express from 'express';
 import bodyParser from 'body-parser';
 import elasticsearch from 'elasticsearch';
+
+/** custom middleware modules */
+import checkEmptyPayload from './middlewares/check-empty-payload';
+import checkContentTypeIsSet from './middlewares/check-content-type-is-set';
+import checkContentTypeIsJson from './middlewares/check-content-type-is-json';
+import errorHandler from './middlewares/error-handler';
 
 
 // const host = process.env.SERVER_HOSTNAME;
@@ -53,49 +61,52 @@ app.use(bodyParser.json({ limit: 1e6 }));
 /**
  * parsing and validating the request payload middlewares
  */
-function checkEmptyPayload(req, res, next) {
-  /** if client request payload is empty */
-  if (
-    ['POST', 'PATCH', 'PUT'].includes(req.method)
-    && req.headers['content-length'] === '0'
-  ) {
-    /** then form a failure response */
-    res.status(400);
-    res.set('Content-Type', 'application/json');
-    res.json({
-      message: 'Payload should not be empty',
-    });
-  }
-  next();
-}
-function checkContentTypeIsSet(req, res, next) {
-  /** headers with content must specify their body is JSON */
-  if (
-    req.headers['content-length']
-    && req.headers['content-length'] !== '0'
-    && !req.headers['content-type']
-  ) {
-    /** if not, form a failure response */
-    res.status(400);
-    res.set('Content-Type', 'application/json');
-    res.json({
-      message: 'The "Content-Type" header must be set for requests with a non-empty payload',
-    });
-  }
-  next();
-}
-function checkContentTypeIsJson(req, res, next) {
-  /** if reqyest payload isn't JSON or is malformed JSON */
-  if (!req.headers['content-type'].includes('application/json')) {
-    /** then form a failure response */
-    res.status(415);
-    res.set('Content-Type', 'application/json');
-    res.json({
-      message: 'The "Content-Type" header must always be "application/json"',
-    });
-  }
-  next();
-}
+// function checkEmptyPayload(req, res, next) {
+//   /** if client request payload is empty */
+//   if (
+//     ['POST', 'PATCH', 'PUT'].includes(req.method)
+//     && req.headers['content-length'] === '0'
+//   ) {
+//     /** then form a failure response */
+//     res.status(400);
+//     res.set('Content-Type', 'application/json');
+//     res.json({
+//       message: 'Payload should not be empty',
+//     });
+//   }
+//   next();
+// }
+// function checkContentTypeIsSet(req, res, next) {
+//   /** headers with content must specify their body is JSON */
+//   if (
+//     req.headers['content-length']
+//     && req.headers['content-length'] !== '0'
+//     && !req.headers['content-type']
+//   ) {
+//     /** if not, form a failure response */
+//     res.status(400);
+//     res.set('Content-Type', 'application/json');
+//     res.json({
+//       message: 'The "Content-Type" header must be set for requests with a non-empty payload',
+//     });
+//   }
+//   next();
+// }
+// function checkContentTypeIsJson(req, res, next) {
+//   /** if reqyest payload isn't JSON or is malformed JSON */
+//   if (!req.headers['content-type'].includes('application/json')) {
+//     /** then form a failure response */
+//     res.status(415);
+//     res.set('Content-Type', 'application/json');
+//     res.json({
+//       message: 'The "Content-Type" header must always be "application/json"',
+//     });
+//   }
+//   next();
+// }
+// app.use(checkEmptyPayload);
+// app.use(checkContentTypeIsSet);
+// app.use(checkContentTypeIsJson);
 app.use(checkEmptyPayload);
 app.use(checkContentTypeIsSet);
 app.use(checkContentTypeIsJson);
@@ -188,21 +199,21 @@ app.post('/users', (req, res, next) => {
  * scenario ends up causing ( due to artifact of the .json()
  * method of bodyParser middleware )
  */
-app.use((err, req, res, next) => {
-  if (
-    err instanceof SyntaxError
-    && err.status === 400
-    && 'body' in err
-    && err.type === 'entity.parse.failed'
-  ) {
-    res.status(400);
-    res.set('Content-Type', 'application/json');
-    res.json({ message: 'Payload should be in JSON format' });
-    return;
-  }
-  next();
-});
-
+// app.use((err, req, res, next) => {
+//   if (
+//     err instanceof SyntaxError
+//     && err.status === 400
+//     && 'body' in err
+//     && err.type === 'entity.parse.failed'
+//   ) {
+//     res.status(400);
+//     res.set('Content-Type', 'application/json');
+//     res.json({ message: 'Payload should be in JSON format' });
+//     return;
+//   }
+//   next();
+// });
+app.use(errorHandler);
 
 /** refactor: improve request handler definitions for each route */
 // const requestHandler = function (req, res) {
