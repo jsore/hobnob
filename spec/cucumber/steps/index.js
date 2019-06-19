@@ -11,10 +11,10 @@
  *
  * hobnob/spec/cucumber/features/<feature>/<sub-feature>
  */
+import assert from 'assert';
 import superagent from 'superagent';
 import { When, Then } from 'cucumber';
 /** Node module, specify expected and actual test results easier */
-import assert from 'assert';
 import { getValidPayload, convertStringToArray } from './utils';
 import elasticsearch from 'elasticsearch';
 
@@ -258,7 +258,7 @@ Then(/^the payload object should be added to the database, grouped under the "([
 });
 
 
-Then('the newly-created user should be deleted', function () {
+Then('the newly-created user should be deleted', function (callback) {
   /** delete mock users by ID */
   client.delete({
     // index: 'hobnob',

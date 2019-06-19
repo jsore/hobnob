@@ -33,6 +33,8 @@ import checkEmptyPayload from './middlewares/check-empty-payload';
 import checkContentTypeIsSet from './middlewares/check-content-type-is-set';
 import checkContentTypeIsJson from './middlewares/check-content-type-is-json';
 import errorHandler from './middlewares/error-handler';
+import createUser from './handlers/users/create';
+import injectHandlerDependencies from './utils/inject-handler-dependencies';
 
 
 // const host = process.env.SERVER_HOSTNAME;
@@ -40,7 +42,7 @@ import errorHandler from './middlewares/error-handler';
 // const esProtocol = process.env.ELASTICSEACH_PROTOCOL;
 const esHost = process.env.ELASTICSEACH_HOSTNAME;
 const esPort = process.env.ELASTICSEACH_PORT;
-const esIndex = process.env.ELASTICSEARCH_INDEX;
+// const esIndex = process.env.ELASTICSEARCH_INDEX;
 
 const client = new elasticsearch.Client({
   // host: `${esProtocol}://${esHost}:${esPort}`,
@@ -133,65 +135,73 @@ app.use(checkContentTypeIsJson);
 //   }
 // });
 /** payload header validation happens in custom middleware */
-app.post('/users', (req, res, next) => {
-  /**
-   * logic for payload body validation, checks that user
-   * entered required fields
-   */
-  if (
-    !Object.prototype.hasOwnProperty.call(req.body, 'email')
-    || !Object.prototype.hasOwnProperty.call(req.body, 'password')
-  ) {
-    res.status(400);
-    res.set('Content-Type', 'application/json');
-    res.json({
-      message: 'Payload must contain at least the email and password fields',
-    });
-  }
+// app.post('/users', (req, res, next) => {
+//   /**
+//    * logic for payload body validation, checks that user
+//    * entered required fields
+//    */
+//   if (
+//     !Object.prototype.hasOwnProperty.call(req.body, 'email')
+//     || !Object.prototype.hasOwnProperty.call(req.body, 'password')
+//   ) {
+//     res.status(400);
+//     res.set('Content-Type', 'application/json');
+//     res.json({
+//       message: 'Payload must contain at least the email and password fields',
+//     });
+//   }
+//
+//   /** emails and passwords should only be strings */
+//   if (
+//     typeof req.body.email !== 'string'
+//     || typeof req.body.password !== 'string'
+//   ) {
+//     res.status(400);
+//     res.set('Content-Type', 'application/json');
+//     res.json({
+//       message: 'The email and password fields must be of type string',
+//     });
+//     // return;
+//   }
+//
+//   /** we only want to accept valid email addresses */
+//   if (!/^[\w.+]+@\w+\.\w+$/.test(req.body.email)) {
+//     res.status(400);
+//     res.set('Content-Type', 'application/json');
+//     res.json({ message: 'The email field must be a valid email.' });
+//     // lint error: Unnecessary return statement
+//     // return;
+//   }
+//
+//   /** succesful create user attempt, validate DB call was good */
+//   client.index({
+//     // index: 'hobnob',
+//     index: esIndex,
+//     type: 'user',
+//     body: req.body,
+//   }).then((result) => {
+//     /** return promise resolving to new ID to client */
+//     res.status(201);
+//     res.set('Content-Type', 'text/plain');
+//     res.send(result._id);
+//   }).catch(() => {
+//     /** or tell client request valid but server having issues */
+//     res.status(500);
+//     res.set('Content-Type', 'application/json');
+//     res.json({ message: 'Internal Server Error' });
+//   });
+//
+//   next();
+// });
 
-  /** emails and passwords should only be strings */
-  if (
-    typeof req.body.email !== 'string'
-    || typeof req.body.password !== 'string'
-  ) {
-    res.status(400);
-    res.set('Content-Type', 'application/json');
-    res.json({
-      message: 'The email and password fields must be of type string',
-    });
-    // return;
-  }
-
-  /** we only want to accept valid email addresses */
-  if (!/^[\w.+]+@\w+\.\w+$/.test(req.body.email)) {
-    res.status(400);
-    res.set('Content-Type', 'application/json');
-    res.json({ message: 'The email field must be a valid email.' });
-    // lint error: Unnecessary return statement
-    // return;
-  }
-
-  /** succesful create user attempt, validate DB call was good */
-  client.index({
-    // index: 'hobnob',
-    index: esIndex,
-    type: 'user',
-    body: req.body,
-  }).then((result) => {
-    /** return promise resolving to new ID to client */
-    res.status(201);
-    res.set('Content-Type', 'text/plain');
-    res.send(result._id);
-  }).catch(() => {
-    /** or tell client request valid but server having issues */
-    res.status(500);
-    res.set('Content-Type', 'application/json');
-    res.json({ message: 'Internal Server Error' });
-  });
-
-  next();
-});
-
+// app.post('/users', createUser);
+// but we need an Elasticsearch client...
+// ...could move the new elasticsearch.Client({ ... }) into
+//    our request middleware, but we don't want to
+//    instantiate a new for each request...
+// ...handle in src/utils/inject-handler-dependencies.js
+/** using an existing ES client, pass it to a req handler */
+app.post('/users', injectHandlerDependencies(createUser, client));
 
 /**
  * otherwise, POST was a JSON payload that got malformed, so

@@ -30,7 +30,7 @@ Feature: Create User
     # loop through each scenario fact row in this datatable
     | payloadType | statusCode | message                                                       |
     | empty       | 400        | "Payload should not be empty"                                 |
-    | non-JSON    | 415        | 'The "Content-Type" header must always be "application/json"' |
+    | non-JSON    | 415        | "The "Content-Type" header must always be "application/json"" |
     | malformed   | 400        | "Payload should be in JSON format"                            |
 
   # spec constraint says payload needs an email and password

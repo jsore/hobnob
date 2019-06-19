@@ -2,9 +2,13 @@
 
 
 # don't bind a process to the port used by my API server
-if netstat -lnt | grep -q :$SERVER_PORT; then
+# if netstat -lnt | grep -q :$SERVER_PORT; then
+if lsof -nP -i4TCP:8888 | grep LISTEN; then
+  process=`lsof -t -i :8888`
+  echo "process $process"
   echo "Another process is already listening on port $SERVER_PORT"
-  exit 1;
+  kill -9 $process
+  #exit 1;
 fi
 
 
@@ -38,7 +42,8 @@ fi
 yarn run serve &
 RETRY_INTERVAL=0.2
 # until ss -lnt | grep -q :$SERVER_PORT; do
-until netstat -lnt | grep -q :$SERVER_PORT; do
+# until netstat -lnt | grep -q :$SERVER_PORT; do
+until lsof -nP -i4TCP:8888 | grep LISTEN; do
   sleep $RETRY_INTERVAL
 done
 
