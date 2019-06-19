@@ -1,8 +1,9 @@
 /**
  * hobnob/src/middlewares/error-handler.js
+ *
+ * takes care of errors for malformed JSON requests
  */
 
-/** if this is hit, payload was malformed JSON */
 function errorHandler(err, req, res, next) {
   if (
     err instanceof SyntaxError
