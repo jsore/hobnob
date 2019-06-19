@@ -59,6 +59,7 @@ function createUser(req, res, db) { /* eslint-disable */
     return;
   });
 
+  /** because my linter is annoying, empty return */
   return;
 }
 
