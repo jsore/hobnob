@@ -36,7 +36,7 @@ function generateValidationErrorMessage(errors) {
     return `The '${error.dataPath}.${error.params.missingProperty}' field is missing`;
   }
   if (error.keyword === 'type') {
-    return `The '${error.dataPath}' field must be a of type ${error.params.type}`;
+    return `The '${error.dataPath}' field must be of type ${error.params.type}`;
   }
   if (error.keyword === 'format') {
     return `The '${error.dataPath}' field must be a valid ${error.params.format}`;
