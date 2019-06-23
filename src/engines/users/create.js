@@ -34,6 +34,7 @@ function create(req, db) {
     index: process.env.ELASTICSEARCH_INDEX,
     type: 'user',
     body: req.body,
+    // ignore: 404,
   });
 }
 

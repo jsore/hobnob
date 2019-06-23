@@ -68,9 +68,26 @@ const client = new elasticsearch.Client({
 });
 
 
-When (/^the client creates a (GET|POST|PATCH|PUT|DELETE|OPTIONS|HEAD) request to ([/\w-:.]+)$/, function(method, path) {
+// old RegExp -> ([/\w-:.]+)
+// new RegExp -> ([\/\w-:]+)
+When (/^the client creates a (GET|POST|PATCH|PUT|DELETE|OPTIONS|HEAD) request to ([\/\w-:]+)$/, function(method, path) {
   /** start a new request with a new request object */
-  this.request = superagent(method, `${host}:${port}${path}`);
+  // TODO: Failing Tests
+  // console.log(
+  //   `| superagent(method, http://host:portpath) ->`
+  //   + `${method}, http://${host}:${port}${path} |`
+  //   + `| ES client.host -> ${esHost}:${esPort} |`
+  // );
+  this.request = superagent(method, `http://${host}:${port}${path}`);
+});
+
+
+When(/^attaches (.+) as the payload$/, function (payload) {
+  this.requestPayload = JSON.parse(payload);
+  this.request
+    .send(payload)
+    .set('Content-Type', 'application/json');
+  return;
 });
 
 
@@ -94,7 +111,7 @@ When(/^attaches a generic (.+) payload$/, function (payloadType) {
     /** superagent sends a blank payload by default, use it */
     case 'empty':
     default:
-    return;
+      return;
   }
 });
 
@@ -105,32 +122,41 @@ When(/^attaches a valid (.+) payload$/, function (payloadType) {
     .send(JSON.stringify(this.requestPayload))
     .set('Content-Type', 'application/json')
   // return;
+  return;
 });
 
 
 When(/^attaches an? (.+) payload which is missing the ([a-zA-Z0-9, ]+) fields?$/, function (payloadType, missingFields) {  // refactor me
-  /** attach dummy user payload with a field missing */
-  const payload = {
-    email: 'e@ma.il',
-    password: 'password',
-  };
-  /** convert extracteed paramter str to arr... */
-  const fieldsToDelete = missingFields.split(',')
-    /** ...loop through each object prop and clean it... */
-    .map(s => s.trim()).filter(s => s !== '');
-    /** ...delete one and feed incomplete payload into req */
-  fieldsToDelete.forEach(field => delete payload[field]);
+  // /** attach dummy user payload with a field missing */
+  // const payload = {
+  //   email: 'e@ma.il',
+  //   password: 'password',
+  // };
+  // /** convert extracteed paramter str to arr... */
+  // const fieldsToDelete = missingFields.split(',')
+  //   /** ...loop through each object prop and clean it... */
+  //   .map(s => s.trim()).filter(s => s !== '');
+  //   /** ...delete one and feed incomplete payload into req */
+  // fieldsToDelete.forEach(field => delete payload[field]);
+  // this.request
+  //   .send(JSON.stringify(payload))
+  //   .set('Content-Type', 'application/json');
+  this.requestPayload = getValidPayload(payloadType);
+  const fieldsToDelete = convertStringToArray(missingFields);
   this.request
-    .send(JSON.stringify(payload))
-    .set('Content-Type', 'application/json');
+    .send(JSON.stringify(this.requestPayload))
+    .set('Content-Type', 'application/json')
+  return;
 });
 
 
 When(/^attaches an? (.+) payload where the ([a-zA-Z0-9, ]+) fields? (?:is|are)(\s+not)? a ([a-zA-Z]+)$/, function (payloadType, fields, invert, type) {  // refactor
-  const payload = {
-    email: 'e@mai.il',
-    password: 'password',
-  };
+  // const payload = {
+  //   email: 'e@mai.il',
+  //   password: 'password',
+  // };
+  this.requestPayload = getValidPayload(payloadType);
+
   const typeKey = type.toLowerCase();
   const invertKey = invert ? 'not' : 'is';
   const sampleValues = {
@@ -139,14 +165,20 @@ When(/^attaches an? (.+) payload where the ([a-zA-Z0-9, ]+) fields? (?:is|are)(\
       not: 10,
     },
   };
-  const fieldsToModify = fields.split(',')
-    .map(s => s.trim()).filter(s => s !== '');
+  // const fieldsToModify = fields.split(',')
+  //   .map(s => s.trim()).filter(s => s !== '');
+  const fieldsToModify = convertStringToArray(fields);
+
   fieldsToModify.forEach((field) => {
-    payload[field] = sampleValues[typeKey][invertKey];
+    // payload[field] = sampleValues[typeKey][invertKey];
+    this.requestPayload[field] = sampleValues[typeKey][invertKey];
+    // this.requestPayload[field] = value;
   });
   this.request
-    .send(JSON.stringify(payload))
-    .set('Content-Type', 'application/json');
+    // .send(JSON.stringify(payload))
+    .send(JSON.stringify(this.requestPayload))
+    .set('Content-Type', 'application/json')
+  return;
 });
 
 
@@ -172,6 +204,7 @@ When(/^attaches an? (.+) payload where the ([a-zA-Z0-9, ]+) fields? (?:is|are) e
   this.request
     .send(JSON.stringify(this.requestPayload))
     .set('Content-Type', 'application/json');
+  return;
 });
 
 
@@ -196,6 +229,9 @@ When(/^sends the request$/, function(callback) {
 
 
 Then(/^our API should respond with a ([1-5]\d{2}) HTTP status code$/, function (statusCode) {
+  // TODO: Failing Tests
+  // console.log(this.response);
+  // console.log(this.response.statusCode);
   assert.equal(this.response.statusCode, statusCode);
 });
 
@@ -249,7 +285,8 @@ Then(/^the payload object should be added to the database, grouped under the "([
     // index: 'hobnob',
     index: esIndex,
     type: type,
-    id: this.responsePayload
+    id: this.responsePayload,
+    // ignore: 404,
   }).then((result) => {
     /** confirm _source doc and request are the same */
     assert.deepEqual(result._source, this.requestPayload);
@@ -265,6 +302,7 @@ Then('the newly-created user should be deleted', function (callback) {
     index: esIndex,
     type: this.type,
     id: this.responsePayload,
+    // ignore: 404,
   }).then(function (res) {
     /** on delete success result property = 'deleted' */
     assert.equal(res.result, 'deleted');

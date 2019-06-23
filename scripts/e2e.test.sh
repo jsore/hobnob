@@ -52,5 +52,7 @@ done
 # background processes to prep for new tests
 npx cucumber-js spec/cucumber/features --require-module @babel/register --require spec/cucumber/steps
 kill -15 0
+#curl $ELASTICSEARCH_HOSTNAME:$ELASTICSEARCH_PORT -w "" -o /dev/null
 
-
+# cleaning the test index if it exists still
+curl --silent -o /dev/null -X DELETE "$ELASTICSEARCH_HOSTNAME:$ELASTICSEARCH_PORT/$ELASTICSEARCH_INDEX"
