@@ -84,6 +84,6 @@ app.listen(process.env.SERVER_PORT, () => {
   // eslint-disable-next-line no-console
   console.log(
     'Hobnob API server running on port '
-    + `${process.env.SERVER_PORT}...`
+    + `${process.env.SERVER_PORT}.`
   );
 });

@@ -25,11 +25,11 @@ function validate (req) {
 */
 
 
-/** json schema validation library */
+/** json schema validation library and our libraries */
 import Ajv from 'ajv';
-/** our libraries to validate */
 import profileSchema from '../../schema/users/profile.json';
 import createUserSchema from '../../schema/users/create.json';
+
 /** custom module for request validation failures */
 import ValidationError from '../errors/validation-error';
 import generateValidationErrorMessage from '../errors/messages';

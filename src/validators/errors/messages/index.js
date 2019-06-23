@@ -1,5 +1,7 @@
 /**
- * hobnob/src/validators/errors/messages.js
+ * hobnob/src/validators/errors/messages/index.js
+ *
+ * migrated from: src/validators/errors/messages.js
  *
  * specifies the error messages to return upon encountering
  * a ValidationError from parsing JSON Schema's
