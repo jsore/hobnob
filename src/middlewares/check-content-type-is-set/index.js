@@ -1,11 +1,15 @@
 /**
- * hobnob/src/middlewares/check-content-type-is-set.js
+ * hobnob/src/middlewares/check-content-type-is-set/index.js
  */
 
 function checkContentTypeIsSet(req, res, next) {
   /** headers with content must specify their body is JSON */
   if (
-    req.headers['content-length']
+    // pre-unit testing code:
+    // req.headers['content-length']
+    // && req.headers['content-length'] !== '0'
+    // && !req.headers['content-type']
+    ['POST', 'PATCH', 'PUT'].includes(req.method)
     && req.headers['content-length'] !== '0'
     && !req.headers['content-type']
   ) {

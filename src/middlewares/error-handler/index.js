@@ -1,5 +1,5 @@
 /**
- * hobnob/src/middlewares/error-handler.js
+ * hobnob/src/middlewares/error-handler/index.js
  *
  * takes care of errors for malformed JSON requests
  */
