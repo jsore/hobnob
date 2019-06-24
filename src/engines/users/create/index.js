@@ -1,5 +1,7 @@
 /**
- * hobnob/src/engines/users/create.js
+ * src/engines/users/create/index.js
+ *
+ * from: hobnob/src/engines/users/create.js
  *
  * engine for receiving a request, processing the request
  * then respond with that operation's results
@@ -7,10 +9,9 @@
  * request will be received from /users POST request handler
  */
 
-import ValidationError from '../../validators/errors/validation-error';
-// fix maybe?
-// import ValidationError from '../../validators/errors/validation-error/index';
-import validate from '../../validators/users/create';
+/** pull all dependencies out and inject them into src/index.js */
+// import ValidationError from '../../validators/errors/validation-error';
+// import validate from '../../validators/users/create';
 
 /**
  * validate the request and write the user document to the
@@ -18,12 +19,13 @@ import validate from '../../validators/users/create';
  *
  * async, so it should return a promise
  */
-function create(req, db) {
+function create(req, db, validator, ValidationError) {
 
   /**
    * validate 1st and reject if required to
    */
-  const validationResults = validate(req);
+  // const validationResults = validate(req);
+  const validationResults = validator(req);
   if (validationResults instanceof ValidationError) {
     return Promise.reject(validationResults);
   }

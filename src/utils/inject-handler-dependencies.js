@@ -14,8 +14,20 @@
 /**
  * high order function, operates on or returns other funcs
  */
-function injectHandlerDependencies(handler, db) {
-  return (req, res) => { handler(req, res, db); };
+/** refactor: following the dependency inject pattern */
+// function injectHandlerDependencies(handler, db) {
+function injectHandlerDependencies(
+  handler,
+  db,
+  handlerToEngineMap,
+  handlerToValidatorMap,
+  ValidationError
+) {
+  const engine = handlerToEngineMap.get(handler);
+  const validator = handlerToValidatorMap.get(handler);
+  /** refactor: following the dependency inject pattern */
+  // return (req, res) => { handler(req, res, db); };
+  return (req, res) => { handler(req, res, db, engine, validator, ValidationError); };
 }
 
 export default injectHandlerDependencies;
