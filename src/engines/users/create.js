@@ -8,6 +8,8 @@
  */
 
 import ValidationError from '../../validators/errors/validation-error';
+// fix maybe?
+// import ValidationError from '../../validators/errors/validation-error/index';
 import validate from '../../validators/users/create';
 
 /**
