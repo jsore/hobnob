@@ -21,9 +21,9 @@
 /**
  * import create from '../../../engines/users/create';
  * function createUser(req, res, db) {
- *   create(req, db)
- *   .then(onPromiseFulfilled, onPromiseRejected)
- *   .catch( ... );
+ *   return create(req, db)
+ *     .then(onPromiseFulfilled, onPromiseRejected)
+ *     .catch( ... );
  * }
  */
 
