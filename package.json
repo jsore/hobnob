@@ -29,9 +29,12 @@
     "dotenv-cli": "^2.0.0",
     "eslint": "^5.16.0",
     "husky": "^2.3.0",
+    "lodash.clonedeep": "^4.5.0",
+    "lodash.isequal": "^4.5.0",
     "mocha": "^6.1.4",
     "nodemon": "^1.19.0",
     "rimraf": "^2.6.3",
+    "sinon": "^7.3.2",
     "superagent": "^5.0.5"
   },
   "dependencies": {

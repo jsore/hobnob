@@ -1,5 +1,7 @@
 /**
- * hobnob/src/middlewares/check-empty-payload.js
+ * hobnob/src/middlewares/check-empty-payload/index.js
+ *
+ * from: hobnob/src/middlewares/check-empty-payload.js
  *
  * for POST, PATCH, PUT requests, enpoint expects a payload
  */
@@ -13,10 +15,11 @@ function checkEmptyPayload(req, res, next) {
     /** then form a failure response */
     res.status(400);
     res.set('Content-Type', 'application/json');
-    res.json({
-      message: 'Payload should not be empty',
+    // res.json({ message: 'Payload should not be empty' });
+    // return;
+    return res.json({
+      message: 'Payload should not be empty'
     });
-    return;
   }
   next();
 }
