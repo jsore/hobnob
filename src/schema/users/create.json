@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/schema#",
-  "$id": "http://api.hobnob.social/schemas/users/profile.json",
+  "$id": "http://api.hobnob.social/schemas/users/create.json",
   "title": "Create User Schema",
   "description": "For validating client-provided create user object",
   "type": "object",

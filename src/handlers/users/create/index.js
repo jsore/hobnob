@@ -31,7 +31,14 @@
 /** db = the ES client passed from injectHandlerDependencies */
 /** refactor: following the dependency injection patter */
 // function createUser(req, res, db) {
-function createUser(req, res, db, create, validator, ValidationError) {
+function createUser(
+  req,
+  res,
+  db,
+  createUserEngine,
+  createUserValidator,
+  ValidationError
+) {
   /**
    * create engine and ValidationError class get injected
    * into this handler from
@@ -104,7 +111,9 @@ function createUser(req, res, db, create, validator, ValidationError) {
   /**
    * always return Promises if dealing with async operations
    */
-  return create(req, db, validator, ValidationError)
+  // return create(req, db, createUserValidator, ValidationError)
+  return createUserEngine(req, db, createUserValidator, ValidationError)
+
   // create(req)
     /** .then(onfulfilled, onRejected) */
     .then((result) => {

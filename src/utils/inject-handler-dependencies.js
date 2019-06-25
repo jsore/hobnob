@@ -23,11 +23,22 @@ function injectHandlerDependencies(
   handlerToValidatorMap,
   ValidationError
 ) {
-  const engine = handlerToEngineMap.get(handler);
-  const validator = handlerToValidatorMap.get(handler);
+  // const engine = handlerToEngineMap.get(handler);
+  const createUserEngine = handlerToEngineMap.get(handler);
+  // const validator = handlerToValidatorMap.get(handler);
+  const createUserValidator = handlerToValidatorMap.get(handler);
   /** refactor: following the dependency inject pattern */
   // return (req, res) => { handler(req, res, db); };
-  return (req, res) => { handler(req, res, db, engine, validator, ValidationError); };
+  return (req, res) => {
+    handler(
+      req,
+      res,
+      db,
+      createUserEngine,
+      createUserValidator,
+      ValidationError
+    );
+  };
 }
 
 export default injectHandlerDependencies;
