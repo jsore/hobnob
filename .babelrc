@@ -9,6 +9,11 @@
   "env": {
     "debug": {
       "retainLines": true
+    },
+    "test": {
+      "plugins": [
+        "istanbul"
+      ]
     }
   }
 }

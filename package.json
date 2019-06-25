@@ -12,6 +12,8 @@
     "test": "yarn run test:unit && yarn run test:integration && yarn run test:e2e",
     "test:e2e": "dotenv -e envs/test.env -e envs/.env ./scripts/e2e.test.sh",
     "test:unit": "mocha 'src/**/*.unit.test.js' --require @babel/register",
+    "test:unit:coverage": "nyc --reporter=html --reporter=text node_modules/.bin/mocha 'src/**/*.unit.test.js' --require @babel/register",
+    "report": "command open coverage/index.html",
     "test:integration": "dotenv -e envs/test.env -e envs/.env mocha -- 'src/**/*.integration.test.js' --require @babel/register",
     "watch": "nodemon -w src --exec yarn run serve"
   },
@@ -26,6 +28,8 @@
     "@babel/core": "^7.4.5",
     "@babel/preset-env": "^7.4.5",
     "@babel/register": "^7.4.4",
+    "@istanbuljs/nyc-config-babel": "^2.1.1",
+    "babel-plugin-istanbul": "^5.1.4",
     "cucumber": "^5.1.0",
     "dotenv-cli": "^2.0.0",
     "eslint": "^5.16.0",
@@ -34,6 +38,7 @@
     "lodash.isequal": "^4.5.0",
     "mocha": "^6.1.4",
     "nodemon": "^1.19.0",
+    "nyc": "^14.1.1",
     "rimraf": "^2.6.3",
     "sinon": "^7.3.2",
     "superagent": "^5.0.5"
@@ -45,6 +50,7 @@
     "elasticsearch": "^16.1.1",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.17.3",
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "istanbul": "^0.4.5"
   }
 }

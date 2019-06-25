@@ -147,18 +147,19 @@ function createUser(
   // //////     });
   // //////   });
   return createUserEngine(req, db, createUserValidator, ValidationError)
-    // .then(function (result) {
     .then((result) => {
       res.status(201);
       res.set('Content-Type', 'text/plain');
       return res.send(result._id);
-      // res.status(201);
-      // res.set('Content-Type', 'text/plain');
-      // return res.send(result._id);
-      // res.send(result);
-      // return result;
-    })
-    // .catch(function (err) {
+    }) // ////// }, (err) => {
+    // //////   if (err instanceof ValidationError) {
+    // //////     res.status(400);
+    // //////     res.set('Content-Type', 'application/json');
+    // //////     return res.json({ message: err.message });
+    // //////   }
+    // //////   return undefined;
+    // ////// }) // <- closing paren for then((result => {}))
+
     .catch((err) => {
       if (err instanceof ValidationError) {
         res.status(400);

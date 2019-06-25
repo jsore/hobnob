@@ -127,7 +127,7 @@ When(/^attaches a valid (.+) payload$/, function (payloadType) {
 
 
 When(/^attaches an? (.+) payload which is missing the ([a-zA-Z0-9, ]+) fields?$/, function (payloadType, missingFields) {  // refactor me
-  // /** attach dummy user payload with a field missing */
+  /** attach dummy user payload with a field missing */
   // const payload = {
   //   email: 'e@ma.il',
   //   password: 'password',
