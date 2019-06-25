@@ -40,6 +40,8 @@ function create(req, db, createUserValidator, ValidationError) {
     body: req.body,
     // ignore: 404,
   });
+  // .then(res => res._id)
+  // .catch(err => Promise.reject(new Error('Internal Server Error')));
 }
 
 export default create;

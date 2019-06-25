@@ -112,47 +112,65 @@ function createUser(
    * always return Promises if dealing with async operations
    */
   // return create(req, db, createUserValidator, ValidationError)
+  // ////// return createUserEngine(req, db, createUserValidator, ValidationError)
+  // //////   .then((result) => {
+  // //////     /**
+  // //////      * handle successfull request operation...
+  // //////      */
+  // //////     // 201 created
+  // //////     res.status(201);
+  // //////     res.set('Content-Type', 'text/plain');
+  // //////     // the new indexed thing
+  // //////     return res.send(result._id);
+  // //////   /**
+  // //////    * ...or handle validation ( request ) errors...
+  // //////    */
+  // //////   }, (err) => {
+  // //////     if (err instanceof ValidationError) {
+  // //////       res.status(400);
+  // //////       res.set('Content-Type', 'application/json');
+  // //////       return res.json({
+  // //////         message: err.message,
+  // //////       });
+  // //////     }
+  // //////     // caller expects ID back on success
+  // //////     return undefined;
+  // //////   /**
+  // //////    * ...or handle server ( code ) errors
+  // //////    */
+  // //////   })
+  // //////   .catch(() => {
+  // //////     res.status(500);
+  // //////     res.set('Content-Type', 'application/json');
+  // //////     return res.json({
+  // //////       message: 'Internal Server Error',
+  // //////     });
+  // //////   });
   return createUserEngine(req, db, createUserValidator, ValidationError)
-
-  // create(req)
-    /** .then(onfulfilled, onRejected) */
+    // .then(function (result) {
     .then((result) => {
-
-      /**
-       * handle successfull request operation...
-       */
-      // 201 created
       res.status(201);
       res.set('Content-Type', 'text/plain');
-      // the new indexed thing
       return res.send(result._id);
-
-    /**
-     * ...or handle validation ( request ) errors...
-     */
-    }, (err) => {
+      // res.status(201);
+      // res.set('Content-Type', 'text/plain');
+      // return res.send(result._id);
+      // res.send(result);
+      // return result;
+    })
+    // .catch(function (err) {
+    .catch((err) => {
       if (err instanceof ValidationError) {
         res.status(400);
         res.set('Content-Type', 'application/json');
-        return res.json({
-          message: err.message,
-        });
+        res.json({ message: err.message });
+        return err;
       }
-      // caller expects ID back on success
-      return undefined;
-
-    /**
-     * ...or handle server ( code ) errors
-     */
-    })
-    .catch(() => {
       res.status(500);
       res.set('Content-Type', 'application/json');
-      return res.json({
-        message: 'Internal Server Error',
-      });
+      res.json({ message: 'Internal Server Error' });
+      return err;
     });
-  // return;  // empty return because linter
 }
 
 export default createUser;

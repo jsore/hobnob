@@ -143,6 +143,7 @@ When(/^attaches an? (.+) payload which is missing the ([a-zA-Z0-9, ]+) fields?$/
   //   .set('Content-Type', 'application/json');
   this.requestPayload = getValidPayload(payloadType);
   const fieldsToDelete = convertStringToArray(missingFields);
+  fieldsToDelete.forEach(field => delete this.requestPayload[field]);
   this.request
     .send(JSON.stringify(this.requestPayload))
     .set('Content-Type', 'application/json')
