@@ -6,18 +6,6 @@
  * request handler for POST's to /users
  */
 
-// import ValidationError from '../../validators/errors/validation-error';
-/** refactor: following the dependency injection patter */
-// import ValidationError from '../../../validators/errors/validation-error'; // /index.js
-
-/** validation shouldn't happen here */
-// import validate from '../../validators/users/create';
-/** use the engine to handle validation instead */
-// import create from '../../engines/users/create';
-/** refactor: following the dependency injection patter */
-// import create from '../../../engines/users/create'; // /index.js
-
-
 /**
  * import create from '../../../engines/users/create';
  * function createUser(req, res, db) {
@@ -26,7 +14,6 @@
  *     .catch( ... );
  * }
  */
-
 
 /** db = the ES client passed from injectHandlerDependencies */
 /** refactor: following the dependency injection patter */
@@ -108,70 +95,56 @@ function createUser(
   //  });
   /** refactor: dependency injection for unit testing */
   // create(req, db).then((result) => {
+
+  /* ===================================================================
+  =            what's in the book 'improving test coverage'            =
+  =================================================================== */
   /**
    * always return Promises if dealing with async operations
    */
-  // return create(req, db, createUserValidator, ValidationError)
-  // ////// return createUserEngine(req, db, createUserValidator, ValidationError)
-  // //////   .then((result) => {
-  // //////     /**
-  // //////      * handle successfull request operation...
-  // //////      */
-  // //////     // 201 created
-  // //////     res.status(201);
-  // //////     res.set('Content-Type', 'text/plain');
-  // //////     // the new indexed thing
-  // //////     return res.send(result._id);
-  // //////   /**
-  // //////    * ...or handle validation ( request ) errors...
-  // //////    */
-  // //////   }, (err) => {
-  // //////     if (err instanceof ValidationError) {
-  // //////       res.status(400);
-  // //////       res.set('Content-Type', 'application/json');
-  // //////       return res.json({
-  // //////         message: err.message,
-  // //////       });
-  // //////     }
-  // //////     // caller expects ID back on success
-  // //////     return undefined;
-  // //////   /**
-  // //////    * ...or handle server ( code ) errors
-  // //////    */
-  // //////   })
-  // //////   .catch(() => {
-  // //////     res.status(500);
-  // //////     res.set('Content-Type', 'application/json');
-  // //////     return res.json({
-  // //////       message: 'Internal Server Error',
-  // //////     });
-  // //////   });
   return createUserEngine(req, db, createUserValidator, ValidationError)
     .then((result) => {
       res.status(201);
       res.set('Content-Type', 'text/plain');
       return res.send(result._id);
-    }) // ////// }, (err) => {
-    // //////   if (err instanceof ValidationError) {
-    // //////     res.status(400);
-    // //////     res.set('Content-Type', 'application/json');
-    // //////     return res.json({ message: err.message });
-    // //////   }
-    // //////   return undefined;
-    // ////// }) // <- closing paren for then((result => {}))
-
-    .catch((err) => {
+    }, (err) => {
       if (err instanceof ValidationError) {
         res.status(400);
         res.set('Content-Type', 'application/json');
-        res.json({ message: err.message });
-        return err;
+        return res.json({ message: err.message });
       }
+      // return undefined /** returns a resolved promise */
+      /**
+       * let error propagate down the promise chain on err
+       * received that isn't a ValidationError
+       */
+      throw err;
+    }).catch(() => {
       res.status(500);
       res.set('Content-Type', 'application/json');
-      res.json({ message: 'Internal Server Error' });
-      return err;
+      return res.json({ message: 'Internal Server Error' });
     });
+  /* =======================================================
+  =            what's in the src code Chapter 6            =
+  ======================================================= */
+  // //// return createUserEngine(req, db, createUserValidator, ValidationError)
+  // ////   .then((result) => {
+  // ////     res.status(201);
+  // ////     res.set('Content-Type', 'text/plain');
+  // ////     return res.send(result._id);
+  // ////   })
+  // ////   .catch((err) => {
+  // ////     if (err instanceof ValidationError) {
+  // ////       res.status(400);
+  // ////       res.set('Content-Type', 'application/json');
+  // ////       res.json({ message: err.message });
+  // ////       return err;
+  // ////     }
+  // ////     res.status(500);
+  // ////     res.set('Content-Type', 'application/json');
+  // ////     res.json({ message: 'Internal Server Error' });
+  // ////     return err;
+  // ////   });
 }
 
 export default createUser;
