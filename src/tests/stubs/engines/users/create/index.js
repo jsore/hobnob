@@ -8,6 +8,7 @@ import ValidationError from '../../../../../validators/errors/validation-error';
 
 const VALIDATION_ERROR_MESSAGE = 'VALIDATION_ERROR_MESSAGE';
 const GENERIC_ERROR_MESSAGE = 'Internal Server Error';
+/* eslint-disable func-names */
 const generate = function () {
   return {
     succes: stub().resolves('foo'),
