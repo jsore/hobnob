@@ -11,11 +11,12 @@
  *
  * hobnob/spec/cucumber/features/<feature>/<sub-feature>
  */
+import assert from 'assert';
 import superagent from 'superagent';
 import { When, Then } from 'cucumber';
 /** Node module, specify expected and actual test results easier */
-import assert from 'assert';
 import { getValidPayload, convertStringToArray } from './utils';
+import elasticsearch from 'elasticsearch';
 
 
 /**
@@ -52,29 +53,44 @@ import { getValidPayload, convertStringToArray } from './utils';
  */
 
 
-// dirty, but it keeps away long expressions ¯\_(ツ)_/¯
 const host = process.env.SERVER_HOSTNAME;
 const port = process.env.SERVER_PORT;
-const createUserWhenHTTP = /^the client creates a (GET|POST|PATCH|PUT|DELETE|OPTIONS|HEAD) request to ([/\w-:.]+)$/;
-// const createUserCaseXML = '<?xml version="1.0" encoding="UTF-8" ?><email>justin@jsore.com</email>';
-const createUserFirstThen = /^our API should respond with a ([1-5]\d{2}) HTTP status code$/;
-// const createUserSecondThen = /^the payload of the response should be a JSON object$/;
-const createUserThirdThen = /^contains a message property which says (?:"|')(.*)(?:"|')$/;
-const createUserWhenMissingField = /^attaches an? (.+) payload which is missing the ([a-zA-Z0-9, ]+) fields?$/;
-const createUserNotTypeStr = /^attaches an? (.+) payload where the ([a-zA-Z0-9, ]+) fields? (?:is|are)(\s+not)? a ([a-zA-Z]+)$/;
-const generalButWhen = /^without a (?:"|')([\w-]+)(?:"|') header set$/;
+// const esProtocol = process.env.ELASTICSEACH_PROTOCOL;
+const esHost = process.env.ELASTICSEACH_HOSTNAME;
+const esPort = process.env.ELASTICSEACH_PORT;
+const esIndex = process.env.ELASTICSEARCH_INDEX;
 
-/**
- * When the client creates a POST request to /users...
- */
-When (createUserWhenHTTP, function(method, path) {
-  /** start a new request with a new request object */
-  this.request = superagent(method, `${host}:${port}${path}`);
+
+/** give ES instance a custom host option */
+const client = new elasticsearch.Client({
+  // host: `${esProtocol}://${esHost}:${esPort}`,
+  host: `${esHost}:${esPort}`,
 });
 
-/**
- * ...And attaches a generic <payloadType> payload...
- */
+
+// old RegExp -> ([/\w-:.]+)
+// new RegExp -> ([\/\w-:]+)
+When (/^the client creates a (GET|POST|PATCH|PUT|DELETE|OPTIONS|HEAD) request to ([\/\w-:]+)$/, function(method, path) {
+  /** start a new request with a new request object */
+  // TODO: Failing Tests
+  // console.log(
+  //   `| superagent(method, http://host:portpath) ->`
+  //   + `${method}, http://${host}:${port}${path} |`
+  //   + `| ES client.host -> ${esHost}:${esPort} |`
+  // );
+  this.request = superagent(method, `http://${host}:${port}${path}`);
+});
+
+
+When(/^attaches (.+) as the payload$/, function (payload) {
+  this.requestPayload = JSON.parse(payload);
+  this.request
+    .send(payload)
+    .set('Content-Type', 'application/json');
+  return;
+});
+
+
 When(/^attaches a generic (.+) payload$/, function (payloadType) {
   /** case values pulled from scenario outline's datatable */
   switch (payloadType) {
@@ -95,44 +111,53 @@ When(/^attaches a generic (.+) payload$/, function (payloadType) {
     /** superagent sends a blank payload by default, use it */
     case 'empty':
     default:
-    return;
+      return;
   }
 });
 
-// attaches a valid payload
+
 When(/^attaches a valid (.+) payload$/, function (payloadType) {
   this.requestPayload = getValidPayload(payloadType);
   this.request
     .send(JSON.stringify(this.requestPayload))
     .set('Content-Type', 'application/json')
   // return;
+  return;
 });
 
-/**
- * ...And attaches a payload with missing <missingFields> field
- */
-When(createUserWhenMissingField, function (payloadType, missingFields) {  // refactor me
+
+When(/^attaches an? (.+) payload which is missing the ([a-zA-Z0-9, ]+) fields?$/, function (payloadType, missingFields) {  // refactor me
   /** attach dummy user payload with a field missing */
-  const payload = {
-    email: 'e@ma.il',
-    password: 'password',
-  };
-  /** convert extracteed paramter str to arr... */
-  const fieldsToDelete = missingFields.split(',')
-    /** ...loop through each object prop and clean it... */
-    .map(s => s.trim()).filter(s => s !== '');
-    /** ...delete one and feed incomplete payload into req */
-  fieldsToDelete.forEach(field => delete payload[field]);
+  // const payload = {
+  //   email: 'e@ma.il',
+  //   password: 'password',
+  // };
+  // /** convert extracteed paramter str to arr... */
+  // const fieldsToDelete = missingFields.split(',')
+  //   /** ...loop through each object prop and clean it... */
+  //   .map(s => s.trim()).filter(s => s !== '');
+  //   /** ...delete one and feed incomplete payload into req */
+  // fieldsToDelete.forEach(field => delete payload[field]);
+  // this.request
+  //   .send(JSON.stringify(payload))
+  //   .set('Content-Type', 'application/json');
+  this.requestPayload = getValidPayload(payloadType);
+  const fieldsToDelete = convertStringToArray(missingFields);
+  fieldsToDelete.forEach(field => delete this.requestPayload[field]);
   this.request
-    .send(JSON.stringify(payload))
-    .set('Content-Type', 'application/json');
+    .send(JSON.stringify(this.requestPayload))
+    .set('Content-Type', 'application/json')
+  return;
 });
 
-When(createUserNotTypeStr, function (payloadType, fields, invert, type) {  // refactor
-  const payload = {
-    email: 'e@mai.il',
-    password: 'password',
-  };
+
+When(/^attaches an? (.+) payload where the ([a-zA-Z0-9, ]+) fields? (?:is|are)(\s+not)? a ([a-zA-Z]+)$/, function (payloadType, fields, invert, type) {  // refactor
+  // const payload = {
+  //   email: 'e@mai.il',
+  //   password: 'password',
+  // };
+  this.requestPayload = getValidPayload(payloadType);
+
   const typeKey = type.toLowerCase();
   const invertKey = invert ? 'not' : 'is';
   const sampleValues = {
@@ -141,15 +166,22 @@ When(createUserNotTypeStr, function (payloadType, fields, invert, type) {  // re
       not: 10,
     },
   };
-  const fieldsToModify = fields.split(',')
-    .map(s => s.trim()).filter(s => s !== '');
+  // const fieldsToModify = fields.split(',')
+  //   .map(s => s.trim()).filter(s => s !== '');
+  const fieldsToModify = convertStringToArray(fields);
+
   fieldsToModify.forEach((field) => {
-    payload[field] = sampleValues[typeKey][invertKey];
+    // payload[field] = sampleValues[typeKey][invertKey];
+    this.requestPayload[field] = sampleValues[typeKey][invertKey];
+    // this.requestPayload[field] = value;
   });
   this.request
-    .send(JSON.stringify(payload))
-    .set('Content-Type', 'application/json');
+    // .send(JSON.stringify(payload))
+    .send(JSON.stringify(this.requestPayload))
+    .set('Content-Type', 'application/json')
+  return;
 });
+
 
 // When(/^attaches an? (.+) payload where the ([a-zA-Z0-9, ]+) fields? (?:is|are) exactly (.+)$/, function (payloadType, fields, value) {
 //   const payload = {
@@ -173,18 +205,15 @@ When(/^attaches an? (.+) payload where the ([a-zA-Z0-9, ]+) fields? (?:is|are) e
   this.request
     .send(JSON.stringify(this.requestPayload))
     .set('Content-Type', 'application/json');
+  return;
 });
 
-/**
- * ...But wihtout a "Content-Type" header set...
- */
-When(generalButWhen, function (headerName) {
+
+When(/^without a (?:"|')([\w-]+)(?:"|') header set$/, function (headerName) {
   this.request.unset(headerName);
 });
 
-/**
- * ...And sends the request
- */
+
 When(/^sends the request$/, function(callback) {
   /** wait until response received... */
   this.request
@@ -200,31 +229,14 @@ When(/^sends the request$/, function(callback) {
 });
 
 
-/**
- * Then our API should respond with a <statusCode> HTTP status code...
- */
-Then(createUserFirstThen, function (statusCode) {
+Then(/^our API should respond with a ([1-5]\d{2}) HTTP status code$/, function (statusCode) {
+  // TODO: Failing Tests
+  // console.log(this.response);
+  // console.log(this.response.statusCode);
   assert.equal(this.response.statusCode, statusCode);
 });
 
-/**
- * ...And the payload of the response should be a JSON object...
- */
- /** refactor: make it more generic */
-// Then(createUserSecondThen, function () {
-//   /** parse header to verify we're sending back JSON */
-//   const contentType = this.response.headers['Content-Type'] ||
-//     this.response.headers['content-type'];
-//   if (!contentType || !contentType.includes('application/json')) {
-//     throw new Error('Response not of Content-Type application/json');
-//   }
-//   try {
-//     /** check for valid JSON, throws error if .parse() fails */
-//     this.responsePayload = JSON.parse(this.response.text);
-//   } catch (e) {
-//     throw new Error('Response not a valid JSON object');
-//   }
-// });
+
 Then(/^the payload of the response should be an? ([a-zA-Z0-9, ]+)$/, function (payloadType) {
   const contentType = this.response.headers['Content-Type'] || this.response.headers['content-type'];
   if (payloadType === 'JSON object') {
@@ -252,10 +264,49 @@ Then(/^the payload of the response should be an? ([a-zA-Z0-9, ]+)$/, function (p
   }
 });
 
-// ...And contains a message property which says <message>
-Then(createUserThirdThen, function (message) {
+
+Then(/^contains a message property which says (?:"|')(.*)(?:"|')$/, function (message) {
   assert.equal(this.responsePayload.message, message);
 });
 
 
+/**
+ * string the Create User payload returns, which gets stored
+ * in this.responsePayload, should be the ID, if we can find
+ * that user document then it was stored successfully
+ */
+Then(/^the payload object should be added to the database, grouped under the "([a-zA-Z]+)" type$/, function (type, callback) {
+  /** persist user type ( mock for tests VS real users ) */
+  this.type = type;
+  /**
+   * find a document by ID, get a JSON doc from the index,
+   * the user document is stored in _source key
+   */
+  client.get({
+    // index: 'hobnob',
+    index: esIndex,
+    type: type,
+    id: this.responsePayload,
+    // ignore: 404,
+  }).then((result) => {
+    /** confirm _source doc and request are the same */
+    assert.deepEqual(result._source, this.requestPayload);
+    callback();
+  }).catch(callback);
+});
 
+
+Then('the newly-created user should be deleted', function (callback) {
+  /** delete mock users by ID */
+  client.delete({
+    // index: 'hobnob',
+    index: esIndex,
+    type: this.type,
+    id: this.responsePayload,
+    // ignore: 404,
+  }).then(function (res) {
+    /** on delete success result property = 'deleted' */
+    assert.equal(res.result, 'deleted');
+    callback();
+  }).catch(callback);
+});

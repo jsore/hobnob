@@ -1,6 +1,8 @@
 /**
  * hobnob/src/index.js
  *
+ * entry point for server and API
+ *
  * run: $ yarn run watch     # add nodemon for auto restarts
  *
  * depreciated usage:
@@ -15,237 +17,131 @@
  */
 
 
-/** Babel handles transpiling ESNext features */
+/**
+ * Babel handles transpiling ESNext features
+ *
+ *   CommonJS syntax:
+ *   const http = require('http');
+ *
+ *   ECMA2015/ES6
+ *   import http from 'http';
+ */
 
 
-/** CommonJS syntax */
-// const http = require('http');
-/** ECMA2015/ES6 */
+/**
+ * 3rd party npm modules
+ */
 import '@babel/polyfill';
 import express from 'express';
 import bodyParser from 'body-parser';
+import elasticsearch from 'elasticsearch';
 
-// const server = http.createServer(requestHandler);
-const app = express();
 /**
+ * custom middleware modules
+ */
+import checkEmptyPayload from './middlewares/check-empty-payload';
+import checkContentTypeIsSet from './middlewares/check-content-type-is-set';
+import checkContentTypeIsJson from './middlewares/check-content-type-is-json';
+import errorHandler from './middlewares/error-handler';
+// import createUser from './handlers/users/create'; // move to dep inject
+
+/**
+ * dependency injections
+ */
+// helper utility function, high order func actually doing the work
+import injectHandlerDependencies from './utils/inject-handler-dependencies';
+/**
+ * dependencies for create user endpoint
+ */
+// ./handlers/.../index.createUser() dependency
+// ./engines/.../index.create() dependency
+import ValidationError from './validators/errors/validation-error';
+// ./handlers/.../index.createUser() handler for app.post()
+import createUserHandler from './handlers/users/create';
+// ./engines/.../index.create() engine for handler.createUesr()
+import createUserEngine from './engines/users/create';
+// ./handlers/.../index.createUser() dependency, sent to engine via create()
+import createUserValidator from './validators/users/create'; // create.js
+/**
+ * dependencies for ...
+ */
+
+
+/**
+ * globals from environment
+ * should probably remove these...
+ */
+const esHost = process.env.ELASTICSEACH_HOSTNAME;
+const esPort = process.env.ELASTICSEACH_PORT;
+
+// console.log( process.env.PATH );
+
+
+/** init */
+
+
+/** Elasticsearch client and Express init */
+const client = new elasticsearch.Client({
+  // host: `${esProtocol}://${esHost}:${esPort}`,
+  host: `${esHost}:${esPort}`,
+});
+const app = express();
+
+/**
+ * payload body parsing and header validators
+ *
  * bodyParser.json method returns middleware, use it to parse
  * JSON requests and assign parsed payload to req object body
  */
 app.use(bodyParser.json({ limit: 1e6 }));
-
-
-/**
- * parsing and validating the request payload
- */
-
-function checkEmptyPayload(req, res, next) {
-  /** if client request payload is empty */
-  if (
-    ['POST', 'PATCH', 'PUT'].includes(req.method)
-    && req.headers['content-length'] === '0'
-  ) {
-    /** then form a failure response */
-    res.status(400);
-    res.set('Content-Type', 'application/json');
-    res.json({
-      message: 'Payload should not be empty',
-    });
-  }
-  next();
-}
-
-function checkContentTypeIsSet(req, res, next) {
-  /** headers with content must specify their body is JSON */
-  if (
-    req.headers['content-length']
-    && req.headers['content-length'] !== '0'
-    && !req.headers['content-type']
-  ) {
-    /** if not, form a failure response */
-    res.status(400);
-    res.set('Content-Type', 'application/json');
-    res.json({
-      message: 'The "Content-Type" header must be set for requests with a non-empty payload',
-    });
-  }
-  next();
-}
-
-function checkContentTypeIsJson(req, res, next) {
-  /** if reqyest payload isn't JSON or is malformed JSON */
-  if (!req.headers['content-type'].includes('application/json')) {
-    /** then form a failure response */
-    res.status(415);
-    res.set('Content-Type', 'application/json');
-    res.json({
-      message: 'The "Content-Type" header must always be "application/json"',
-    });
-  }
-  next();
-}
-
-
 app.use(checkEmptyPayload);
 app.use(checkContentTypeIsSet);
 app.use(checkContentTypeIsJson);
 
+/**
+ * maps of handler to <xyz> for relaying dependencies
+ *
+ * ES6 feature, a key-value store where a key or value can be
+ * any type ( primitives, objs, arrays, funcs ) unlike in an
+ * object literal where keys have to be strings or Symbols
+ *
+ *   Map([ [key, value] ]);
+ */
+const handlerToEngineMap = new Map([
+  [createUserHandler, createUserEngine],
+]);
+const handlerToValidatorMap = new Map([
+  [createUserHandler, createUserValidator],
+]);
 
 /** refactor: modularization, move to app.use(middleware) */
 // app.post('/users', (req, res) => {
 //   /** handle empty payloads from client */
-//   if (req.headers['content-length'] === '0') {
-//     res.status(400);
-//     res.set('Content-Type', 'application/json');
-//     res.json({
-//       message: 'Payload should not be empty',
-//     });
-//     return;
-//   }
+//   // ...
+//     res.json({ message: 'Payload should not be empty', });
+//   // ...
 //   /** handle non-json payloads */
-//   if (req.headers['content-type'] !== 'application/json') {
-//     res.status(415);
-//     res.set('Content-Type', 'application/json');
-//     res.json({
-//       message: 'The "Content-Type" header must always be "application/json"',
-//     });
-//   }
+//   // ...
+//     res.json({ message: 'The "Content-Type" header must always be "application/json"', });
+//   // ...
 // });
-/** payload header validation happens in custom middleware */
-app.post('/users', (req, res, next) => {
-  /**
-   * logic for payload body validation, checks that user
-   * entered required fields
-   */
-  if (
-    !Object.prototype.hasOwnProperty.call(req.body, 'email')
-    || !Object.prototype.hasOwnProperty.call(req.body, 'password')
-  ) {
-    res.status(400);
-    res.set('Content-Type', 'application/json');
-    res.json({
-      message: 'Payload must contain at least the email and password fields',
-    });
-  }
-  // if (
-  //   typeof req.body.email !== 'string'
-  //   || typeof req.body.password
-  /** emails and passwords should only be strings */
-  if (
-    typeof req.body.email !== 'string'
-    || typeof req.body.password !== 'string'
-  ) {
-    res.status(400);
-    res.set('Content-Type', 'application/json');
-    res.json({
-      message: 'The email and password fields must be of type string',
-    });
-    // return;
-  }
-  /** we only want to accept valid email addresses */
-  if (!/^[\w.+]+@\w+\.\w+$/.test(req.body.email)) {
-    res.status(400);
-    res.set('Content-Type', 'application/json');
-    res.json({ message: 'The email field must be a valid email.' });
-    // lint error: Unnecessary return statement
-    // return;
-  }
-  next();
-});
+/** refactor: move request handlers to middlewares */
+// app.post('/users', createUser);
+app.post('/users', injectHandlerDependencies(
+  createUserHandler,
+  client,
+  handlerToEngineMap,
+  handlerToValidatorMap,
+  ValidationError
+));
 
+app.use(errorHandler);
 
-/**
- * otherwise, POST was a JSON payload that got malformed, so
- * use an error handler middleware to check for error this
- * scenario ends up causing ( due to artifact of the .json()
- * method of bodyParser middleware )
- */
-app.use((err, req, res, next) => {
-  if (
-    err instanceof SyntaxError
-    && err.status === 400
-    && 'body' in err
-    && err.type === 'entity.parse.failed'
-  ) {
-    res.status(400);
-    res.set('Content-Type', 'application/json');
-    res.json({ message: 'Payload should be in JSON format' });
-    return;
-  }
-  next();
-});
-
-/** refactor: improve request handler definitions for each route */
-// const requestHandler = function (req, res) {
-//   /** block clients from sending POST's to /users endpoint */
-//   // if (req.method === 'POST' && req.url === '/users') {
-//   //   /** refactor: send back a valid JSON object in payload */
-//   //   // res.statusCode = 400;
-//   //   // res.end();
-//   //   res.writeHead(400, { 'Content-Type': 'application/json' });
-//   //   /** this is the error object */
-//   //   res.end(JSON.stringify({
-//   //     message: 'Payload should not be empty',
-//   //   }));
-//   //   return;
-//   // }
-//   if (req.method === 'POST' && req.url === '/users') {
-//     const payloadData = [];
-//     /**
-//      * bodies can be big, use req's ReadleStream interface to
-//      * grab each data chunk as it arrives
-//      */
-//     req.on('data', (data) => {
-//       payloadData.push(data);
-//     });
-//
-//     /** wait until req's data stream is done ( 'end' event ) */
-//     req.on('end', () => {
-//       /** handle a client's Empty Payload */
-//       if (payloadData.length === 0) {
-//         res.writeHead(400, { 'Content-Type': 'application/json' });
-//         /** send JSON object back to client */
-//         res.end(JSON.stringify({
-//           message: 'Payload should not be empty',
-//         }));
-//         return;
-//       }
-//       /** handle payloads using Unsupported Media Type */
-//       if (req.headers['content-type'] !== 'application/json') {
-//         res.writeHead(415, { 'Content-Type': 'application/json' });
-//         /** send JSON object back to client */
-//         res.end(JSON.stringify({
-//           message: 'The "Content-Type" header must always be "application/json"',
-//         }));
-//         return;
-//       }
-//       /** try to parse the req, looking for malformed JSON */
-//       try {
-//         /**
-//          * Buffer is the param passed into event listener for
-//          * data events, representing a chunk of raw data
-//          */
-//         const bodyString = Buffer.concat(payloadData).toString();
-//         /** each chunk should be JSON, this fails if its not */
-//         JSON.parse(bodyString);
-//       } catch (e) {
-//         /** catch any JSON.parse SyntaxError's ( malformed JSON ) */
-//         res.writeHead(400, { 'Content-Type': 'application/json' });
-//         /** send JSON object back to client */
-//         res.end(JSON.stringify({
-//           message: 'Payload should be in JSON format',
-//         }));
-//       }
-//     });
-//   } else {
-//     res.writeHead(200, { 'Content-Type': 'text/plain' });
-//     /** finish prepping response and send to client */
-//     res.end('I know a UDP joke, but you might not get it.');
-//   }
-// };
-
-// server.listen(8080);
 app.listen(process.env.SERVER_PORT, () => {
   /** disable console.log linting errors for server init msg */
   // eslint-disable-next-line no-console
-  console.log(`Hobnob API server running on port ${process.env.SERVER_PORT}...`);
+  console.log(
+    'Hobnob API server running on port '
+    + `${process.env.SERVER_PORT}.`
+  );
 });
