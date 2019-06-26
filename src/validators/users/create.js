@@ -1,5 +1,5 @@
 /**
- * hobnob/src/validators/users/create.js
+ * hobnob/src/validators/users/create.js ( validate() )
  *
  * module for user create validation logic
  */

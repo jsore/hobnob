@@ -39,7 +39,8 @@ else
 fi
 
 # init API server as background process and wait until up
-yarn run serve &
+# yarn run serve &
+yarn run test:serve &
 RETRY_INTERVAL=0.2
 # until ss -lnt | grep -q :$SERVER_PORT; do
 # until netstat -lnt | grep -q :$SERVER_PORT; do

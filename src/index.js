@@ -74,6 +74,8 @@ import createUserValidator from './validators/users/create'; // create.js
 const esHost = process.env.ELASTICSEACH_HOSTNAME;
 const esPort = process.env.ELASTICSEACH_PORT;
 
+// console.log( process.env.PATH );
+
 
 /** init */
 
