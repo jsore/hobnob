@@ -10,6 +10,7 @@ Feature: General
   carrying a non-empty payload, must have a 'Content-Type'
   header.
 
+    # When the client creates a <method> request to /users/
     When the client creates a <method> request to /users/
     And attaches a generic non-JSON payload
     But without a "Content-Type" header set

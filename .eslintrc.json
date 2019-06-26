@@ -14,6 +14,21 @@
         "sourceType": "module"
     },
     "rules": {
-        "no-underscore-dangle": "off"
-    }
+        "no-underscore-dangle": "off",
+        "padded-blocks": "off",
+        "comma-dangle": "off",
+        "consistent-return": "off"
+    },
+    "overrides": [
+        {
+            "files": ["*.test.js"],
+            "env": {
+                "mocha": true
+            },
+            "rules": {
+                "func-names": "off",
+                "prefer-arrow-callback": "off"
+            }
+        }
+    ]
 }

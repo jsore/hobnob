@@ -1,6 +1,6 @@
 {
   "presets": [
-    ["@babel/env", {
+    ["@babel/preset-env", {
       "targets": {
         "node": "current"
       }
@@ -9,6 +9,11 @@
   "env": {
     "debug": {
       "retainLines": true
+    },
+    "test": {
+      "plugins": [
+        "istanbul"
+      ]
     }
   }
 }
