@@ -94,16 +94,19 @@ Feature: Create User
     When the client creates a POST request to /users/
     And attaches a valid Create User payload
     And sends the request
+    # -->
+    And saves the response text in the context under userId
     Then our API should respond with a 201 HTTP status code
     And the payload of the response should be a string
     And the payload object should be added to the database, grouped under the "user" type
     # trash the mock users created by test cases
-    And the newly-created user should be deleted
+    # And the newly-created user should be deleted
+    # -->
+    And the entity of type user, with ID stored under userId, should be deleted
 
   # profile is supplied, but incorrect type or unsupported properties
   Scenario Outline: Invalid Profile
 
-    # When the client creates a POST request to /users/
     # When the client creates a POST request to /users
     When the client creates a POST request to /users/
     And attaches <payload> as the payload
@@ -116,6 +119,7 @@ Feature: Create User
 
     | payload                                                                          | message                                                   |
     | {"email":"e@ma.il","password":"abc","profile":{"foo":"bar"}}                     | The '.profile' object does not support the field 'foo'    |
+    | {"email":"e@ma.il","password":"abc","profile":{"name":"Jane Doe"}}               | The '.profile.name' field must be of type object          |
     | {"email":"e@ma.il","password":"abc","profile":{"name":{"first":"Jane","a":"b"}}} | The '.profile.name' object does not support the field 'a' |
     | {"email":"e@ma.il","password":"abc","profile":{"summary":0}}                     | The '.profile.summary' field must be of type string       |
     | {"email":"e@ma.il","password":"abc","profile":{"bio":0}}                         | The '.profile.bio' field must be of type string           |
@@ -127,10 +131,14 @@ Feature: Create User
     When the client creates a POST request to /users/
     And attaches <payload> as the payload
     And sends the request
+    # -->
+    And saves the response text in the context under userId
     Then our API should respond with a 201 HTTP status code
     And the payload of the response should be a string
     And the payload object should be added to the database, grouped under the "user" type
-    And the newly-created user should be deleted
+    # And the newly-created user should be deleted
+    # -->
+    And the entity of type user, with ID stored under userId, should be deleted
 
     Examples:
 

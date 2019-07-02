@@ -12,12 +12,15 @@
  * hobnob/spec/cucumber/features/<feature>/<sub-feature>
  */
 import assert from 'assert';
+// -->
+// import jsonfile from 'jsonfile';
 import superagent from 'superagent';
-import { When, Then } from 'cucumber';
-/** Node module, specify expected and actual test results easier */
-import { getValidPayload, convertStringToArray } from './utils';
+import { When, Then } from 'cucumber';    // -->
+// import { Given, When, Then } from 'cucumber';
 import elasticsearch from 'elasticsearch';
-
+// import objectPath from 'object-path';
+import { getValidPayload, convertStringToArray } from './utils';   // -->
+// import { processPath, getValidPayload, convertStringToArray } from './utils';
 
 /**
  * refactored: no more static global values
@@ -30,27 +33,6 @@ import elasticsearch from 'elasticsearch';
 // let result;
 // let error;
 // let payload;
-
-/**
- *----------  root/main.feature  --------------------------
- *
- * General test scenarios, things applicable globally
- *
- * 1. Client sends a POST|PATCH|PUT to any endpoint
- *
- *
- * ----------  root/users/create/main.feature  ----------
- *
- * Create User Feature test scenarios
- *
- * 1. Handle Bad Client Requests ( headers )
- *   - POST request payloads to /users that are empty
- *   - POST request payloads to /users that aren't JSON
- *   - POST request payloads to /users with malformed JSON
- *   - failure responses must be JSON with an HTTP stat code
- *
- * 2. Handle Bad Request Payloads ( bodies )
- */
 
 
 const host = process.env.SERVER_HOSTNAME;
@@ -68,8 +50,6 @@ const client = new elasticsearch.Client({
 });
 
 
-// old RegExp -> ([/\w-:.]+)
-// new RegExp -> ([\/\w-:]+)
 When (/^the client creates a (GET|POST|PATCH|PUT|DELETE|OPTIONS|HEAD) request to ([\/\w-:]+)$/, function(method, path) {
   /** start a new request with a new request object */
   // TODO: Failing Tests
@@ -126,21 +106,8 @@ When(/^attaches a valid (.+) payload$/, function (payloadType) {
 });
 
 
-When(/^attaches an? (.+) payload which is missing the ([a-zA-Z0-9, ]+) fields?$/, function (payloadType, missingFields) {  // refactor me
+When(/^attaches an? (.+) payload which is missing the ([a-zA-Z0-9, ]+) fields?$/, function (payloadType, missingFields) {
   /** attach dummy user payload with a field missing */
-  // const payload = {
-  //   email: 'e@ma.il',
-  //   password: 'password',
-  // };
-  // /** convert extracteed paramter str to arr... */
-  // const fieldsToDelete = missingFields.split(',')
-  //   /** ...loop through each object prop and clean it... */
-  //   .map(s => s.trim()).filter(s => s !== '');
-  //   /** ...delete one and feed incomplete payload into req */
-  // fieldsToDelete.forEach(field => delete payload[field]);
-  // this.request
-  //   .send(JSON.stringify(payload))
-  //   .set('Content-Type', 'application/json');
   this.requestPayload = getValidPayload(payloadType);
   const fieldsToDelete = convertStringToArray(missingFields);
   fieldsToDelete.forEach(field => delete this.requestPayload[field]);
@@ -151,11 +118,9 @@ When(/^attaches an? (.+) payload which is missing the ([a-zA-Z0-9, ]+) fields?$/
 });
 
 
-When(/^attaches an? (.+) payload where the ([a-zA-Z0-9, ]+) fields? (?:is|are)(\s+not)? a ([a-zA-Z]+)$/, function (payloadType, fields, invert, type) {  // refactor
-  // const payload = {
-  //   email: 'e@mai.il',
-  //   password: 'password',
-  // };
+When(/^attaches an? (.+) payload where the ([a-zA-Z0-9, ]+) fields? (?:is|are)(\s+not)? a ([a-zA-Z]+)$/,
+  function (payloadType, fields, invert, type)
+{
   this.requestPayload = getValidPayload(payloadType);
 
   const typeKey = type.toLowerCase();
