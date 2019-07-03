@@ -20,6 +20,8 @@
     "test:unit": "mocha 'src/**/*.unit.test.js' --require @babel/register",
     "test:unit:coverage": "nyc --reporter=html --reporter=text node_modules/.bin/mocha 'src/**/*.unit.test.js' --require @babel/register",
     "test:report": "command open coverage/index.html",
+    "test:env": "dotenv -e envs/.env node testEnv.js",
+    "test:env.test": "dotenv -e envs/test.env -e envs/.env node testEnv.js",
     "watch": "nodemon -w src --exec yarn run serve"
   },
   "repository": {
@@ -57,6 +59,8 @@
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.17.3",
     "express": "^4.17.1",
-    "istanbul": "^0.4.5"
+    "istanbul": "^0.4.5",
+    "jsonfile": "^5.0.0",
+    "object-path": "^0.11.4"
   }
 }
