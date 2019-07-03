@@ -3,76 +3,43 @@
  *
  * entry point for server and API
  *
- * run: $ yarn run watch     # add nodemon for auto restarts
+ * run: $ yarn run watch
  *
- * depreciated usage:
- *
- *   $ rm -rf dist/ && npx babel src -d dist   # build
- *   $ node dist/index.js                      # run it
- *
- *   $ yarn run build       # build
- *   $ node dist/index.js   # run it
- *
- *   $ yarn run serve       # build then run it
+ * ported from old.index.js for refactoring
  */
 
 
-/**
- * Babel handles transpiling ESNext features
- *
- *   CommonJS syntax:
- *   const http = require('http');
- *
- *   ECMA2015/ES6
- *   import http from 'http';
- */
-
-
-/**
- * 3rd party npm modules
- */
-import '@babel/polyfill';
+// import '@babel/polyfill';
 import express from 'express';
 import bodyParser from 'body-parser';
-import elasticsearch from 'elasticsearch';
+// import elasticsearch from 'elasticsearch';
 
-/**
- * custom middleware modules
- */
-import checkEmptyPayload from './middlewares/check-empty-payload';
-import checkContentTypeIsSet from './middlewares/check-content-type-is-set';
-import checkContentTypeIsJson from './middlewares/check-content-type-is-json';
-import errorHandler from './middlewares/error-handler';
-// import createUser from './handlers/users/create'; // move to dep inject
+import * as middlewares from './middlewares';
+import * as handlers from './handlers';
+// import checkEmptyPayload from './middlewares/check-empty-payload';
+// import checkContentTypeIsSet from './middlewares/check-content-type-is-set';
+// import checkContentTypeIsJson from './middlewares/check-content-type-is-json';
+// import errorHandler from './middlewares/error-handler';
 
-/**
- * dependency injections
- */
-// helper utility function, high order func actually doing the work
-import injectHandlerDependencies from './utils/inject-handler-dependencies';
-/**
- * dependencies for create user endpoint
- */
-// ./handlers/.../index.createUser() dependency
-// ./engines/.../index.create() dependency
-import ValidationError from './validators/errors/validation-error';
-// ./handlers/.../index.createUser() handler for app.post()
-import createUserHandler from './handlers/users/create';
-// ./engines/.../index.create() engine for handler.createUesr()
-import createUserEngine from './engines/users/create';
-// ./handlers/.../index.createUser() dependency, sent to engine via create()
-import createUserValidator from './validators/users/create'; // create.js
-/**
- * dependencies for ...
- */
+/** dependency injections, handled by magic now aparently */
+// import injectHandlerDependencies from './utils/inject-handler-dependencies';
+// import ValidationError from './validators/errors/validation-error';
+// import createUserHandler from './handlers/users/create';
+// import createUserEngine from './engines/users/create';
+// import createUserValidator from './validators/users/create'; // create.js
 
 
 /**
  * globals from environment
- * should probably remove these...
+ * should probably remove these and find a better way to
+ * carry these values across the infrastructure...
  */
-const esHost = process.env.ELASTICSEACH_HOSTNAME;
-const esPort = process.env.ELASTICSEACH_PORT;
+// //////// const esHost = process.env.ELASTICSEACH_HOSTNAME;
+// //////// const esPort = process.env.ELASTICSEACH_PORT;
+// const env = process.env; // ?????
+if (process.env.NODE_ENV === 'test') {
+  process.env.ELASTICSEARCH_INDEX = process.env.ELASTICSEARCH_INDEX_TEST;
+}
 
 // console.log( process.env.PATH );
 
@@ -80,11 +47,11 @@ const esPort = process.env.ELASTICSEACH_PORT;
 /** init */
 
 
-/** Elasticsearch client and Express init */
-const client = new elasticsearch.Client({
-  // host: `${esProtocol}://${esHost}:${esPort}`,
-  host: `${esHost}:${esPort}`,
-});
+// //////// /** Elasticsearch client and Express init */
+// //////// const client = new elasticsearch.Client({
+// ////////   // host: `${esProtocol}://${esHost}:${esPort}`,
+// ////////   host: `${esHost}:${esPort}`,
+// //////// });
 const app = express();
 
 /**
