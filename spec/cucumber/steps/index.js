@@ -1,6 +1,8 @@
 /**
  * hobnob/spec/cucumber/steps/index.js
  *
+ * e2e tests for create user feature
+ *
  * Step definitions for Feature tests in .feature files.
  *
  * Cucumber runs the appropriate definition by matching the
@@ -12,24 +14,24 @@
  *   hobnob/spec/cucumber/features/<feature>/<sub-feature>
  */
 import assert from 'assert';
+/** read/write JSON files - Node only, no browser support */
 import jsonfile from 'jsonfile';
 import superagent from 'superagent';
-// import { When, Then } from 'cucumber';
 import { Given, When, Then } from 'cucumber';
 import elasticsearch from 'elasticsearch';
+/** access deep properties of objects and arrays */
 import objectPath from 'object-path';
-// import { getValidPayload, convertStringToArray } from './utils';
 import { processPath, getValidPayload, convertStringToArray } from './utils';
 
 
 const host = process.env.SERVER_HOSTNAME;
-// const port = process.env.SERVER_PORT; // should pick up test port 8888
-const testPort = process.env.SERVER_PORT_TEST;
+const port = process.env.SERVER_PORT; // should pick up test port 8888
+// const testPort = process.env.SERVER_PORT_TEST;
 // const esProtocol = process.env.ELASTICSEACH_PROTOCOL;
 const esHost = process.env.ELASTICSEACH_HOSTNAME;
 const esPort = process.env.ELASTICSEACH_PORT;
-// const esIndex = process.env.ELASTICSEARCH_INDEX;
-const testEsIndex = process.env.ELASTICSEARCH_INDEX_TEST;
+const esIndex = process.env.ELASTICSEARCH_INDEX;
+// const testEsIndex = process.env.ELASTICSEARCH_INDEX_TEST;
 
 
 /** give ES instance a custom host option */
@@ -44,7 +46,7 @@ Given(/^all documents of type (?:"|')([\w-]+)(?:"|') are deleted$/,
 function (type) {
 
   return client.deleteByQuery({
-    index: testEsIndex,
+    index: esIndex,
     type: type,
     body: {
       "query": {
@@ -82,7 +84,7 @@ function (count, sourceFile, type) {
    */
   const action = {
     index: {
-      _index: testEsIndex,
+      _index: esIndex,
       _type: type,
     }
   };
@@ -111,7 +113,7 @@ function(method, path) {
   // console.log(`| superagent(method, http://host:portpath) -> ${method}, http://${host}:${port}${path} | ES client.host -> ${esHost}:${esPort} |`);
   const processedPath = processPath(this, path);
   // //// this.request = superagent(method, `http://${host}:${port}${path}`);
-  this.request = superagent(method, `http://${host}:${testPort}${processedPath}`);
+  this.request = superagent(method, `http://${host}:${port}${processedPath}`);
 });
 
 
@@ -313,27 +315,62 @@ function (payloadType) {
 });
 
 
-// i stopped here
-
-
 Then(/^the response should contain (\d+) items$/,
 function (count) {
 
+  assert.equal(this.responsePayload.length, count);
 });
+
 
 Then(/^the ([\w.]+) property of the response should be an? ([\w.]+) with the value (.+)$/,
 function (responseProperty, expectedResponseType, expectedResponse) {
 
+  if (responseProperty === 'root') {
+    responseProperty = '';
+  }
+  const parsedExpectedResponse = (function () {
+    switch (expectedResponseType) {
+      case 'object':
+        return JSON.parse(expectedResponse);
+      case 'string':
+        return expectedResponse.replace(/^(?:["'])(.*)(?:["'])$/, '$1');
+      default:
+        return expectedResponse;
+    }
+  })();
+  assert.deepEqual(
+    objectPath.get(this.responsePayload, responseProperty),
+    parsedExpectedResponse
+  );
 });
+
 
 Then(/^the ([\w.]+) property of the response should be the same as context\.([\w.]+)$/,
 function (responseProperty, contextProperty) {
 
+  if (responseProperty === 'root') {
+    responseProperty = '';
+  }
+  assert.deepEqual(
+    objectPath.get(this.responsePayload, responseProperty),
+    objectPath.get(this, contextProperty)
+  );
 });
 
-Then(/^the ([\w.]+) property of the response should be the same as contex.([\w.]+) but without the ([\w.]+) fields$/,
+
+Then(/^the ([\w.]+) property of the response should be the same as context\.([\w.]+) but without the ([\w.]+) fields$/,
 function (responseProperty, contextProperty, missingFields) {
 
+  if (responseProperty === 'root') {
+    responseProperty = '';
+  }
+  const contextObject = objectPath.get(this, contextProperty);
+  const fieldsToDelete = convertStringToArray(missingFields);
+  fieldsToDelete.forEach(field => delete contextObject[field]);
+  assert.deepEqual(objectPath.get(
+    this.responsePayload, responseProperty),
+    contextObject
+  );
 });
 
 
@@ -360,7 +397,7 @@ function (type, callback) {
    */
   client.get({
     // index: 'hobnob',
-    index: testEsIndex,
+    index: esIndex,
     type: type,
     id: this.responsePayload,
     // ignore: 404,
@@ -372,19 +409,32 @@ function (type, callback) {
 });
 
 
-Then('the newly-created user should be deleted',
-function (callback) {
+// Then('the newly-created user should be deleted',
+Then(/^the entity of type (\w+), with ID stored under ([\w\.]+), should be deleted$/,
+// function (callback) {
+function (type, idPath, callback) {
 
   /** delete mock users by ID */
   client.delete({
-    // index: 'hobnob',
-    index: testEsIndex,
-    type: this.type,
-    id: this.responsePayload,
+    index: esIndex,
+    // type: this.type,
+    type: type,
+    // id: this.responsePayload,
+    id: objectPath.get(this, idPath),
     // ignore: 404,
   }).then(function (res) {
     /** on delete success result property = 'deleted' */
     assert.equal(res.result, 'deleted');
     callback();
   }).catch(callback);
+});
+
+
+Then(/^the first item of the response should have property ([\w\.]+) set to (.+)$/,
+function (path, value) {
+
+  assert.equal(
+    objectPath.get(this.responsePayload[0], path),
+    value
+  );
 });
