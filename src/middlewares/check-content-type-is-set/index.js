@@ -19,12 +19,14 @@ function checkContentTypeIsSet(req, res, next) {
     // res.json({
     //   message: 'The "Content-Type" header must be set for requests with a non-empty payload',
     // });
-    res.json({
-      message: 'The "Content-Type" header must be set for POST, PATCH, and PUT requests with a non-empty payload.',
+    return res.json({
+    // res.json({
+      message: 'The "Content-Type" header must be set for requests with a non-empty payload',
     });
-    return;
+    // return;
   }
-  next();
+  return next();
+  // next();
 }
 
 export default checkContentTypeIsSet;

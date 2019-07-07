@@ -103,10 +103,11 @@ function createUser(
    * always return Promises if dealing with async operations
    */
   return createUserEngine(req, db, createUserValidator, ValidationError)
-    .then((result) => {
+    // .then((result) => {
+    .then((userId) => {
       res.status(201);
       res.set('Content-Type', 'text/plain');
-      return res.send(result._id);
+      return res.send(userId._id);
     }, (err) => {
       if (err instanceof ValidationError) {
         res.status(400);

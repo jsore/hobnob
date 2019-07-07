@@ -17,14 +17,17 @@ import create from '.';
 /** instantiate an Elasticsearch JavaScript client */
 const db = new elasticsearch.Client({
   host: `${process.env.ELASTICSEARCH_HOSTNAME}:${process.env.ELASTICSEARCH_PORT}`,
+  // host: 'http://localhost:9200', ELASTICSEACH_HOSTNAME
 });
 
-describe('User Create Engine', function () {
+// describe('User Create Engine', function () {
+describe('Engine - User - Create', function () {
 
   describe('When invoked with invalid req', function () {
     it('should return promise that rejects with an instance of ValidationError', function () {
       const req = {};
-      create(req, db, createUserValidator, ValidationError)
+      // create(req, db, createUserValidator, ValidationError)
+      return create(req, db, createUserValidator, ValidationError)
         .catch(err => assert(err instanceof ValidationError));
     });
   });
@@ -38,10 +41,12 @@ describe('User Create Engine', function () {
           profile: {},
         },
       };
-      create(req, db, createUserValidator, ValidationError)
+      // create(req, db, createUserValidator, ValidationError)
+      return create(req, db, createUserValidator, ValidationError)
         .then((result) => {
-          assert.equal(result.result, 'created');
-          assert.equal(typeof result._id, 'string');
+          // assert.equal(result.result, 'created');
+          // assert.equal(typeof result._id, 'string');
+          assert.equal(typeof result, 'string');
         });
     });
   });

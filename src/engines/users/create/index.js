@@ -39,7 +39,7 @@ function create(req, db, createUserValidator, ValidationError) {
     type: 'user',
     body: req.body,
     // ignore: 404,
-  });
+  }).then(result => result._id);
   // .then(res => res._id)
   // .catch(err => Promise.reject(new Error('Internal Server Error')));
 }

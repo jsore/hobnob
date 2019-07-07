@@ -37,6 +37,7 @@
     "@babel/register": "^7.4.4",
     "@istanbuljs/nyc-config-babel": "^2.1.1",
     "babel-plugin-istanbul": "^5.1.4",
+    "chance": "^1.0.18",
     "cucumber": "^5.1.0",
     "dotenv-cli": "^2.0.0",
     "eslint": "^5.16.0",

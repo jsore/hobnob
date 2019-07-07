@@ -4,7 +4,8 @@ import elasticsearch from 'elasticsearch';
 import objectPath from 'object-path';
 
 const client = new elasticsearch.Client({
-  host: `${process.env.ELASTICSEARCH_PROTOCOL}://${process.env.ELASTICSEARCH_HOSTNAME}:${process.env.ELASTICSEARCH_PORT}`,
+  // host: `${process.env.ELASTICSEARCH_PROTOCOL}://${process.env.ELASTICSEARCH_HOSTNAME}:${process.env.ELASTICSEARCH_PORT}`,
+  host: `${process.env.ELASTICSEARCH_HOSTNAME}:${process.env.ELASTICSEARCH_PORT}`,
 });
 
 Given(/^all documents of type (?:"|')([\w-]+)(?:"|') are deleted$/, function (type) {
