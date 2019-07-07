@@ -5,18 +5,12 @@ Feature: Delete User by ID
   Clients should be able to send a request to our API in
   order to delete a user.
 
-  Scenario: Delete Non-existing User
+  Background: Create two Users and logs in with the first user's account
 
-    When the client creates a DELETE request to /users/non-existent-user
-    And sends the request
-    Then our API should respond with a 404 HTTP status code
+    Given 1 new user is crreated with random password and email
 
-  Scenario: Delete Existing User
-
-    Given the client creates a POST request to /users/
-    And attaches a valid Create User payload
-    And sends the request
-    And saves the response text in the context under userId
+  # Scenario: Delete Existing User
+  Scenario: Delete Self
 
     When the client creates a DELETE request to /users/:userId
     And sends the request
@@ -25,3 +19,15 @@ Feature: Delete User by ID
     When the client creates a GET request to /users/:userId
     And sends the request
     Then our API should respond with a 404 HTTP status code
+
+  Scenario: Delete Non-existing User
+
+    When the client creates a DELETE request to /users/:userId
+    And sends the request
+    Then our API should respond with a 200 HTTP status code
+
+    When the client creates a DELETE request to /users/non-existent-user
+    And sends the request
+    Then our API should respond with a 404 HTTP status code
+
+

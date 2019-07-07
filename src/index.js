@@ -8,62 +8,44 @@
  * ported from old.index.js for refactoring
  */
 
-
-// import '@babel/polyfill';
+import '@babel/polyfill';
 import express from 'express';
 import bodyParser from 'body-parser';
-// import elasticsearch from 'elasticsearch';
+import elasticsearch from 'elasticsearch';
 
-import * as middlewares from './middlewares';
-import * as handlers from './handlers';
-// import checkEmptyPayload from './middlewares/check-empty-payload';
-// import checkContentTypeIsSet from './middlewares/check-content-type-is-set';
-// import checkContentTypeIsJson from './middlewares/check-content-type-is-json';
-// import errorHandler from './middlewares/error-handler';
+import checkEmptyPayload from './middlewares/check-empty-payload';
+import checkContentTypeIsSet from './middlewares/check-content-type-is-set';
+import checkContentTypeIsJson from './middlewares/check-content-type-is-json';
+import errorHandler from './middlewares/error-handler';
 
-/** dependency injections, handled by magic now aparently */
-// import injectHandlerDependencies from './utils/inject-handler-dependencies';
-// import ValidationError from './validators/errors/validation-error';
-// import createUserHandler from './handlers/users/create';
-// import createUserEngine from './engines/users/create';
-// import createUserValidator from './validators/users/create'; // create.js
+import injectHandlerDependencies from './utils/inject-handler-dependencies';
+import ValidationError from './validators/errors/validation-error';
 
+// validators
+import createUserValidator from './validators/users/create'; // create.js
+// import searchUserValidator ...
+// import replaceProfileValidator ...
+// import updateProfileValidator ...
 
-/**
- * globals from environment
- * should probably remove these and find a better way to
- * carry these values across the infrastructure...
- */
-// //////// const esHost = process.env.ELASTICSEACH_HOSTNAME;
-// //////// const esPort = process.env.ELASTICSEACH_PORT;
-// const env = process.env; // ?????
-if (process.env.NODE_ENV === 'test') {
-  process.env.ELASTICSEARCH_INDEX = process.env.ELASTICSEARCH_INDEX_TEST;
-}
+// handlers
+import createUserHandler from './handlers/users/create';
+// import searchUserHandler ...
+// import replaceProfileHandler ...
+// import updateProfileHandler ...
+// import retrieveUserHandler ...
+// import deleteUserHandler ...
 
-// console.log( process.env.PATH );
-
-
-/** init */
+// engines
+import createUserEngine from './engines/users/create';
+// import searchUserEngine ...
+// import replaceProfileEngine ...
+// import updateProfileEngine ...
+// import retrieveUserEngine ...
+// import deleteUserEngine ...
 
 
-// //////// /** Elasticsearch client and Express init */
-// //////// const client = new elasticsearch.Client({
-// ////////   // host: `${esProtocol}://${esHost}:${esPort}`,
-// ////////   host: `${esHost}:${esPort}`,
-// //////// });
-const app = express();
+/** dependency injections handled by magic now aparently */
 
-/**
- * payload body parsing and header validators
- *
- * bodyParser.json method returns middleware, use it to parse
- * JSON requests and assign parsed payload to req object body
- */
-app.use(bodyParser.json({ limit: 1e6 }));
-app.use(checkEmptyPayload);
-app.use(checkContentTypeIsSet);
-app.use(checkContentTypeIsJson);
 
 /**
  * maps of handler to <xyz> for relaying dependencies
@@ -76,39 +58,103 @@ app.use(checkContentTypeIsJson);
  */
 const handlerToEngineMap = new Map([
   [createUserHandler, createUserEngine],
-]);
-const handlerToValidatorMap = new Map([
-  [createUserHandler, createUserValidator],
+  // [searchUserHandler, searchUserEngine],
+  // [replaceProfileHandler, replaceProfileEngine],
+  // [updateProfileHandler, updateProfileEngine],
+  // [retrieveUserHandler, retrieveUserEngine],
+  // [deleteUserHandler, deleteUserEngine],
 ]);
 
-/** refactor: modularization, move to app.use(middleware) */
-// app.post('/users', (req, res) => {
-//   /** handle empty payloads from client */
-//   // ...
-//     res.json({ message: 'Payload should not be empty', });
-//   // ...
-//   /** handle non-json payloads */
-//   // ...
-//     res.json({ message: 'The "Content-Type" header must always be "application/json"', });
-//   // ...
-// });
-/** refactor: move request handlers to middlewares */
-// app.post('/users', createUser);
+const handlerToValidatorMap = new Map([
+  [createUserHandler, createUserValidator],
+  // [searchUserHandler, searchUserValidator],
+  // [replaceProfileHandler, replaceProfileValidator],
+  // [updateProfileHandler, updateProfileValidator],
+]);
+
+
+/** ...why is this necesary? */
+// if (process.env.NODE_ENV === 'test') {
+//   // test with $ yarn run test:env test:env.test
+//   process.env.ELASTICSEARCH_INDEX = process.env.ELASTICSEARCH_INDEX_TEST;
+//   process.env.SERVER_PORT = process.env.SERVER_PORT_TEST;
+// } else {
+//   process.env.ELASTICSEARCH_INDEX = process.env.ELASTICSEARCH_INDEX_DEV;
+//   process.env.SERVER_PORT = process.env.SERVER_PORT_DEV;
+// }
+
+
+const client = new elasticsearch.Client({
+  host: `${process.env.ELASTICSEACH_HOSTNAME}:${process.env.ELASTICSEACH_PORT}`,
+});
+
+
+const app = express();
+
+
+/**
+ * payload body parsing and header validators
+ *
+ * bodyParser.json method returns middleware, use it to parse
+ * JSON requests and assign parsed payload to req object body
+ */
+// app.use(middlewares.check...
+app.use(bodyParser.json({ limit: 1e6 }));
+app.use(checkEmptyPayload);
+app.use(checkContentTypeIsSet);
+app.use(checkContentTypeIsJson);
+
+
 app.post('/users', injectHandlerDependencies(
   createUserHandler,
-  client,
-  handlerToEngineMap,
-  handlerToValidatorMap,
-  ValidationError
+  client, handlerToEngineMap, handlerToValidatorMap, ValidationError
+));
+
+app.get('/users/', injectHandlerDependencies(
+  searchUserHandler,
+  client, handlerToEngineMap, handlerToValidatorMap, ValidationError
+));
+
+app.put('/users/:userId/profile', injectHandlerDependencies(
+  replaceProfileHandler,
+  client, handlerToEngineMap, handlerToValidatorMap, ValidationError
+));
+
+app.patch('/users/:userId/profile', injectHandlerDependencies(
+  updateProfileHandler,
+  client, handlerToEngineMap, handlerToValidatorMap, ValidationError
+));
+
+app.get('/users/:userId', injectHandlerDependencies(
+  retrieveUserHandler,
+  client, handlerToEngineMap, handlerToValidatorMap, ValidationError
+));
+
+app.delete('/users/:userId', injectHandlerDependencies(
+  deleteUserHandler,
+  client, handlerToEngineMap, handlerToValidatorMap, ValidationError
 ));
 
 app.use(errorHandler);
 
-app.listen(process.env.SERVER_PORT, () => {
+// app.listen(process.env.SERVER_PORT, () => {
+const server = app.listen(process.env.SERVER_PORT, async () => {
+  const indexParams = { index: process.env.ELASTICSEARCH_INDEX };
+  const indexExists = await client.indices.exists(indexParams);
+  if (!indexExists) {
+    await client.indices.create(indexParams);
+  }
+
   /** disable console.log linting errors for server init msg */
   // eslint-disable-next-line no-console
   console.log(
     'Hobnob API server running on port '
     + `${process.env.SERVER_PORT}.`
   );
+});
+
+process.on('SIGTERM', () => {
+  server.close(() => {
+    process.exit(0);
+  });
 });
