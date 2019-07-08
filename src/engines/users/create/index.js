@@ -19,13 +19,13 @@
  *
  * async, so it should return a promise
  */
-function create(req, db, createUserValidator, ValidationError) {
+function create(req, db, validator, ValidationError) {
 
   /**
    * validate 1st and reject if required to
    */
   // const validationResults = validate(req);
-  const validationResults = createUserValidator(req);
+  const validationResults = validator(req);
   if (validationResults instanceof ValidationError) {
     return Promise.reject(validationResults);
   }

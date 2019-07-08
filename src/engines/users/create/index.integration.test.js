@@ -24,7 +24,9 @@ const db = new elasticsearch.Client({
 describe('Engine - User - Create', function () {
 
   describe('When invoked with invalid req', function () {
-    it('should return promise that rejects with an instance of ValidationError', function () {
+    it('should return promise that rejects with an instance of ValidationError',
+    function () {
+
       const req = {};
       // create(req, db, createUserValidator, ValidationError)
       return create(req, db, createUserValidator, ValidationError)

@@ -45,7 +45,7 @@ function generateValidationErrorMessage(errors, pathPrefix = '') {
     return `The '${pathPrefix}${error.dataPath}' field must be a valid ${error.params.format}`;
   }
   if (error.keyword === 'additionalProperties') {
-    // return `The '${error.dataPath}' object does not support the field '${error.params.additionalProperty}'`;
+    /* eslint-disable max-len */
     return `The '${pathPrefix}${error.dataPath}' object does not support the field '${error.params.additionalProperty}'`;
   }
   return 'The object is not valid';

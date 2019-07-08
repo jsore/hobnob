@@ -76,4 +76,13 @@ describe('generateValidationErrorMessage', function () {
     const expectedErrorMessage = "The '.test.path' object does not support the field 'email'";
     assert.equal(actualErrorMessage, expectedErrorMessage);
   });
+  it('should return the correct string when error.keyword is not recognized',
+  function () {
+    const errors = [{
+      keyword: 'foobar',
+    }];
+    const actualErrorMessage = generateValidationErrorMessage(errors);
+    const expectedErrorMessage = 'The object is not valid';
+    assert.equal(actualErrorMessage, expectedErrorMessage);
+  });
 });

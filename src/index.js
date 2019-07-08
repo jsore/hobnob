@@ -29,18 +29,18 @@ import createUserValidator from './validators/users/create'; // create.js
 
 // handlers
 import createUserHandler from './handlers/users/create';
+// import retrieveUserHandler ...
 // import searchUserHandler ...
 // import replaceProfileHandler ...
 // import updateProfileHandler ...
-// import retrieveUserHandler ...
 // import deleteUserHandler ...
 
 // engines
 import createUserEngine from './engines/users/create';
+// import retrieveUserEngine ...
 // import searchUserEngine ...
 // import replaceProfileEngine ...
 // import updateProfileEngine ...
-// import retrieveUserEngine ...
 // import deleteUserEngine ...
 
 
@@ -58,10 +58,10 @@ import createUserEngine from './engines/users/create';
  */
 const handlerToEngineMap = new Map([
   [createUserHandler, createUserEngine],
+  // [retrieveUserHandler, retrieveUserEngine],
   // [searchUserHandler, searchUserEngine],
   // [replaceProfileHandler, replaceProfileEngine],
   // [updateProfileHandler, updateProfileEngine],
-  // [retrieveUserHandler, retrieveUserEngine],
   // [deleteUserHandler, deleteUserEngine],
 ]);
 
@@ -105,19 +105,21 @@ app.use(checkEmptyPayload);
 app.use(checkContentTypeIsSet);
 app.use(checkContentTypeIsJson);
 
-// And the payload object should be added to the database, grouped under the "user" type # spec/cucumber/steps/response.js:52
-//         Error: Incorrect HTTP method for uri [/test/user/] and method [GET], allowed: [POST]
+// And the payload object should be added to the database,
+// grouped under the "user" type # spec/cucumber/steps/response.js:52
+//     Error: Incorrect HTTP method for uri [/test/user/] and method [GET], allowed: [POST]
 app.post('/users', injectHandlerDependencies(
   createUserHandler,
   client, handlerToEngineMap, handlerToValidatorMap, ValidationError
 ));
 
-// app.get('/users/:userId', () => {
-//   console.log('get to GET');
-//   close();
-// });
 // app.get('/users/', injectHandlerDependencies(
 //   searchUserHandler,
+//   client, handlerToEngineMap, handlerToValidatorMap, ValidationError
+// ));
+
+// app.get('/users/:userId', injectHandlerDependencies(
+//   retrieveUserHandler,
 //   client, handlerToEngineMap, handlerToValidatorMap, ValidationError
 // ));
 
@@ -131,10 +133,6 @@ app.post('/users', injectHandlerDependencies(
 //   client, handlerToEngineMap, handlerToValidatorMap, ValidationError
 // ));
 
-app.get('/users/:userId', injectHandlerDependencies(
-//   retrieveUserHandler,
-//   client, handlerToEngineMap, handlerToValidatorMap, ValidationError
-));
 
 // app.delete('/users/:userId', injectHandlerDependencies(
 //   deleteUserHandler,

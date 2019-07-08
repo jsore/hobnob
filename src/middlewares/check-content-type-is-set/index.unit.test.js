@@ -1,3 +1,4 @@
+/* eslint-disable import/no-extraneous-dependencies */
 /**
  * hobnob/src/middlewares/check-content-type-is-set/index.unit.test.js
  */
@@ -77,8 +78,9 @@ describe('checkContentTypeIsSet', function () {
       });
       it('should set res.json with error code', function () {
         assert(res.json.calledOnce);
-        // assert(res.json.calledWithExactly({ message: 'The "Content-Type" header must be set for POST, PATCH, and PUT requests with a non-empty payload.' }));
-        assert(res.json.calledWithExactly({ message: 'The "Content-Type" header must be set for requests with a non-empty payload' }));
+        assert(res.json.calledWithExactly(
+          { message: 'The "Content-Type" header must be set for requests with a non-empty payload' }
+        ));
       });
 
     });
