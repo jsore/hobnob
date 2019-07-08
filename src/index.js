@@ -29,7 +29,7 @@ import createUserValidator from './validators/users/create'; // create.js
 
 // handlers
 import createUserHandler from './handlers/users/create';
-// import retrieveUserHandler ...
+import retrieveUserHandler from './handlers/users/retrieve';
 // import searchUserHandler ...
 // import replaceProfileHandler ...
 // import updateProfileHandler ...
@@ -37,7 +37,7 @@ import createUserHandler from './handlers/users/create';
 
 // engines
 import createUserEngine from './engines/users/create';
-// import retrieveUserEngine ...
+import retrieveUserEngine from './engines/users/retrieve';
 // import searchUserEngine ...
 // import replaceProfileEngine ...
 // import updateProfileEngine ...
@@ -58,7 +58,7 @@ import createUserEngine from './engines/users/create';
  */
 const handlerToEngineMap = new Map([
   [createUserHandler, createUserEngine],
-  // [retrieveUserHandler, retrieveUserEngine],
+  [retrieveUserHandler, retrieveUserEngine],
   // [searchUserHandler, searchUserEngine],
   // [replaceProfileHandler, replaceProfileEngine],
   // [updateProfileHandler, updateProfileEngine],
@@ -118,10 +118,10 @@ app.post('/users', injectHandlerDependencies(
 //   client, handlerToEngineMap, handlerToValidatorMap, ValidationError
 // ));
 
-// app.get('/users/:userId', injectHandlerDependencies(
-//   retrieveUserHandler,
-//   client, handlerToEngineMap, handlerToValidatorMap, ValidationError
-// ));
+app.get('/users/:userId', injectHandlerDependencies(
+  retrieveUserHandler,
+  client, handlerToEngineMap, handlerToValidatorMap, ValidationError
+));
 
 // app.put('/users/:userId/profile', injectHandlerDependencies(
 //   replaceProfileHandler,

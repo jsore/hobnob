@@ -8,7 +8,7 @@ import ValidationError from '../../../validators/errors/validation-error';
 import generateESClientIndexStub, { INDEX_RESOLVE_ID } from '../../../tests/stubs/elasticsearch/client/index';
 import create from '.';
 
-describe('Engine - User - Create', function () {
+describe('Engine - Users - Create', function () {
 
   let req;
   let db;

@@ -68,7 +68,7 @@ const VALIDATION_ERROR_MESSAGE = 'VALIDATION_ERROR_MESSAGE';
 
 
 // describe('createUser', function () {
-describe('Handler - User - Create', function () {
+describe('Handler - Users - Create', function () {
 
   const db = {};
   const req = {};

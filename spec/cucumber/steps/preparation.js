@@ -30,7 +30,10 @@ function createUsers(count) {
   return Promise.all(Array.from(Array(count), createUser));
 }
 
-Given(/^(\w+) new users? (?:is|are) created with random password and email$/, async function (amount) {
+// Given(/^(\w+) new users? (?:is|are) created with random password and email$/,
+Given(/^(\d+) new users? (?:is|are) created with random password and email$/,
+async function (amount) {
+
   const count = Number.isNaN(parseInt(amount, 10)) ? 1 : parseInt(amount, 10);
   this.users = await createUsers(count);
 
