@@ -7,7 +7,7 @@ Feature: Delete User by ID
 
   Background: Create two Users and logs in with the first user's account
 
-    Given 1 new user is crreated with random password and email
+    Given 1 new user is created with random password and email
 
   # Scenario: Delete Existing User
   Scenario: Delete Self

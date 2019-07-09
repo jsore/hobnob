@@ -19,13 +19,13 @@
  *
  * async, so it should return a promise
  */
-function create(req, db, createUserValidator, ValidationError) {
+function create(req, db, validator, ValidationError) {
 
   /**
    * validate 1st and reject if required to
    */
   // const validationResults = validate(req);
-  const validationResults = createUserValidator(req);
+  const validationResults = validator(req);
   if (validationResults instanceof ValidationError) {
     return Promise.reject(validationResults);
   }
@@ -39,7 +39,7 @@ function create(req, db, createUserValidator, ValidationError) {
     type: 'user',
     body: req.body,
     // ignore: 404,
-  });
+  }).then(result => result._id);
   // .then(res => res._id)
   // .catch(err => Promise.reject(new Error('Internal Server Error')));
 }

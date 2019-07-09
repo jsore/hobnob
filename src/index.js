@@ -29,18 +29,18 @@ import createUserValidator from './validators/users/create'; // create.js
 
 // handlers
 import createUserHandler from './handlers/users/create';
+import retrieveUserHandler from './handlers/users/retrieve';
 // import searchUserHandler ...
 // import replaceProfileHandler ...
 // import updateProfileHandler ...
-// import retrieveUserHandler ...
 // import deleteUserHandler ...
 
 // engines
 import createUserEngine from './engines/users/create';
+import retrieveUserEngine from './engines/users/retrieve';
 // import searchUserEngine ...
 // import replaceProfileEngine ...
 // import updateProfileEngine ...
-// import retrieveUserEngine ...
 // import deleteUserEngine ...
 
 
@@ -58,10 +58,10 @@ import createUserEngine from './engines/users/create';
  */
 const handlerToEngineMap = new Map([
   [createUserHandler, createUserEngine],
+  [retrieveUserHandler, retrieveUserEngine],
   // [searchUserHandler, searchUserEngine],
   // [replaceProfileHandler, replaceProfileEngine],
   // [updateProfileHandler, updateProfileEngine],
-  // [retrieveUserHandler, retrieveUserEngine],
   // [deleteUserHandler, deleteUserEngine],
 ]);
 
@@ -85,7 +85,8 @@ const handlerToValidatorMap = new Map([
 
 
 const client = new elasticsearch.Client({
-  host: `${process.env.ELASTICSEACH_HOSTNAME}:${process.env.ELASTICSEACH_PORT}`,
+  // host: `${process.env.ELASTICSEACH_HOSTNAME}:${process.env.ELASTICSEACH_PORT}`,
+  host: `${process.env.ELASTICSEARCH_HOSTNAME}:${process.env.ELASTICSEARCH_PORT}`,
 });
 
 
@@ -104,36 +105,39 @@ app.use(checkEmptyPayload);
 app.use(checkContentTypeIsSet);
 app.use(checkContentTypeIsJson);
 
-
+// And the payload object should be added to the database,
+// grouped under the "user" type # spec/cucumber/steps/response.js:52
+//     Error: Incorrect HTTP method for uri [/test/user/] and method [GET], allowed: [POST]
 app.post('/users', injectHandlerDependencies(
   createUserHandler,
   client, handlerToEngineMap, handlerToValidatorMap, ValidationError
 ));
 
-app.get('/users/', injectHandlerDependencies(
-  searchUserHandler,
-  client, handlerToEngineMap, handlerToValidatorMap, ValidationError
-));
-
-app.put('/users/:userId/profile', injectHandlerDependencies(
-  replaceProfileHandler,
-  client, handlerToEngineMap, handlerToValidatorMap, ValidationError
-));
-
-app.patch('/users/:userId/profile', injectHandlerDependencies(
-  updateProfileHandler,
-  client, handlerToEngineMap, handlerToValidatorMap, ValidationError
-));
+// app.get('/users/', injectHandlerDependencies(
+//   searchUserHandler,
+//   client, handlerToEngineMap, handlerToValidatorMap, ValidationError
+// ));
 
 app.get('/users/:userId', injectHandlerDependencies(
   retrieveUserHandler,
   client, handlerToEngineMap, handlerToValidatorMap, ValidationError
 ));
 
-app.delete('/users/:userId', injectHandlerDependencies(
-  deleteUserHandler,
-  client, handlerToEngineMap, handlerToValidatorMap, ValidationError
-));
+// app.put('/users/:userId/profile', injectHandlerDependencies(
+//   replaceProfileHandler,
+//   client, handlerToEngineMap, handlerToValidatorMap, ValidationError
+// ));
+
+// app.patch('/users/:userId/profile', injectHandlerDependencies(
+//   updateProfileHandler,
+//   client, handlerToEngineMap, handlerToValidatorMap, ValidationError
+// ));
+
+
+// app.delete('/users/:userId', injectHandlerDependencies(
+//   deleteUserHandler,
+//   client, handlerToEngineMap, handlerToValidatorMap, ValidationError
+// ));
 
 app.use(errorHandler);
 
