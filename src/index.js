@@ -33,7 +33,7 @@ import retrieveUserHandler from './handlers/users/retrieve';
 import searchUserHandler from './handlers/users/search';
 // import replaceProfileHandler ...
 // import updateProfileHandler ...
-// import deleteUserHandler ...
+import deleteUserHandler from './handlers/users/delete';
 
 // engines
 import createUserEngine from './engines/users/create';
@@ -41,7 +41,7 @@ import retrieveUserEngine from './engines/users/retrieve';
 import searchUserEngine from './engines/users/search';
 // import replaceProfileEngine ...
 // import updateProfileEngine ...
-// import deleteUserEngine ...
+import deleteUserEngine from './engines/users/delete';
 
 
 /** dependency injections handled by magic now aparently */
@@ -62,7 +62,7 @@ const handlerToEngineMap = new Map([
   [searchUserHandler, searchUserEngine],
   // [replaceProfileHandler, replaceProfileEngine],
   // [updateProfileHandler, updateProfileEngine],
-  // [deleteUserHandler, deleteUserEngine],
+  [deleteUserHandler, deleteUserEngine],
 ]);
 
 const handlerToValidatorMap = new Map([
@@ -132,10 +132,9 @@ app.get('/users/:userId', injectHandlerDependencies(
 //   client, handlerToEngineMap, handlerToValidatorMap, ValidationError
 // ));
 /** delete a user object */
-// app.delete('/users/:userId', injectHandlerDependencies(
-//   deleteUserHandler,
-//   client, handlerToEngineMap, handlerToValidatorMap, ValidationError
-// ));
+app.delete('/users/:userId', injectHandlerDependencies(
+  deleteUserHandler, client, handlerToEngineMap, handlerToValidatorMap, ValidationError
+));
 
 app.use(errorHandler);
 
