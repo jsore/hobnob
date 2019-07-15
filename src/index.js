@@ -23,14 +23,14 @@ import ValidationError from './validators/errors/validation-error';
 
 // validators
 import createUserValidator from './validators/users/create'; // create.js
-// import searchUserValidator ...
+import searchUserValidator from './validators/users/search';
 // import replaceProfileValidator ...
 // import updateProfileValidator ...
 
 // handlers
 import createUserHandler from './handlers/users/create';
 import retrieveUserHandler from './handlers/users/retrieve';
-// import searchUserHandler ...
+import searchUserHandler from './handlers/users/search';
 // import replaceProfileHandler ...
 // import updateProfileHandler ...
 // import deleteUserHandler ...
@@ -38,7 +38,7 @@ import retrieveUserHandler from './handlers/users/retrieve';
 // engines
 import createUserEngine from './engines/users/create';
 import retrieveUserEngine from './engines/users/retrieve';
-// import searchUserEngine ...
+import searchUserEngine from './engines/users/search';
 // import replaceProfileEngine ...
 // import updateProfileEngine ...
 // import deleteUserEngine ...
@@ -59,7 +59,7 @@ import retrieveUserEngine from './engines/users/retrieve';
 const handlerToEngineMap = new Map([
   [createUserHandler, createUserEngine],
   [retrieveUserHandler, retrieveUserEngine],
-  // [searchUserHandler, searchUserEngine],
+  [searchUserHandler, searchUserEngine],
   // [replaceProfileHandler, replaceProfileEngine],
   // [updateProfileHandler, updateProfileEngine],
   // [deleteUserHandler, deleteUserEngine],
@@ -67,7 +67,7 @@ const handlerToEngineMap = new Map([
 
 const handlerToValidatorMap = new Map([
   [createUserHandler, createUserValidator],
-  // [searchUserHandler, searchUserValidator],
+  [searchUserHandler, searchUserValidator],
   // [replaceProfileHandler, replaceProfileValidator],
   // [updateProfileHandler, updateProfileValidator],
 ]);
@@ -108,32 +108,30 @@ app.use(checkContentTypeIsJson);
 // And the payload object should be added to the database,
 // grouped under the "user" type # spec/cucumber/steps/response.js:52
 //     Error: Incorrect HTTP method for uri [/test/user/] and method [GET], allowed: [POST]
+
+/** create a user */
 app.post('/users', injectHandlerDependencies(
-  createUserHandler,
-  client, handlerToEngineMap, handlerToValidatorMap, ValidationError
+  createUserHandler, client, handlerToEngineMap, handlerToValidatorMap, ValidationError
 ));
-
-// app.get('/users/', injectHandlerDependencies(
-//   searchUserHandler,
-//   client, handlerToEngineMap, handlerToValidatorMap, ValidationError
-// ));
-
+/**  search for user(s) */
+app.get('/users/', injectHandlerDependencies(
+  searchUserHandler, client, handlerToEngineMap, handlerToValidatorMap, ValidationError
+));
+/** retrieve a user object */
 app.get('/users/:userId', injectHandlerDependencies(
-  retrieveUserHandler,
-  client, handlerToEngineMap, handlerToValidatorMap, ValidationError
+  retrieveUserHandler, client, handlerToEngineMap, handlerToValidatorMap, ValidationError
 ));
-
+/** replace an existing user profile */
 // app.put('/users/:userId/profile', injectHandlerDependencies(
 //   replaceProfileHandler,
 //   client, handlerToEngineMap, handlerToValidatorMap, ValidationError
 // ));
-
+/** update an existing user profile */
 // app.patch('/users/:userId/profile', injectHandlerDependencies(
 //   updateProfileHandler,
 //   client, handlerToEngineMap, handlerToValidatorMap, ValidationError
 // ));
-
-
+/** delete a user object */
 // app.delete('/users/:userId', injectHandlerDependencies(
 //   deleteUserHandler,
 //   client, handlerToEngineMap, handlerToValidatorMap, ValidationError
