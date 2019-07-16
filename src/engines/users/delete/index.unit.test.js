@@ -24,7 +24,7 @@ describe('Engine - Users - Delete', function () {
 
     it("should call the client instance's get method with the correct params", function () {
       assert.deepEqual(db.delete.getCall(0).args[0], {
-        index: process.env.ELASTICSEARCH_INDEX,
+        index: process.env.ES_INDEX,
         type: 'user',
         id: TEST_USER_ID,
       });

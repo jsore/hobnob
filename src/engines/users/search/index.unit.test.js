@@ -42,7 +42,7 @@ describe('Engine - Users - Search', function () {
 
       it("should call the client instance's search method with the correct params", function () {
         assert.deepEqual(db.search.getCall(0).args[0], {
-          index: process.env.ELASTICSEARCH_INDEX,
+          index: process.env.ES_INDEX,
           type: 'user',
           // _sourceExclude: 'password',
           _source_exclude: 'password',
@@ -59,7 +59,7 @@ describe('Engine - Users - Search', function () {
         });
         it("should call the client instance's search method with the correct params", function () {
           assert.deepEqual(db.search.getCall(0).args[0], {
-            index: process.env.ELASTICSEARCH_INDEX,
+            index: process.env.ES_INDEX,
             type: 'user',
             q: SEARCH_TERM,
             // _sourceExclude: 'password',

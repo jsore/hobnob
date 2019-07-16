@@ -76,17 +76,17 @@ const handlerToValidatorMap = new Map([
 /** ...why is this necesary? */
 // if (process.env.NODE_ENV === 'test') {
 //   // test with $ yarn run test:env test:env.test
-//   process.env.ELASTICSEARCH_INDEX = process.env.ELASTICSEARCH_INDEX_TEST;
+//   process.env.ES_INDEX = process.env.ES_INDEX_TEST;
 //   process.env.SERVER_PORT = process.env.SERVER_PORT_TEST;
 // } else {
-//   process.env.ELASTICSEARCH_INDEX = process.env.ELASTICSEARCH_INDEX_DEV;
+//   process.env.ES_INDEX = process.env.ES_INDEX_DEV;
 //   process.env.SERVER_PORT = process.env.SERVER_PORT_DEV;
 // }
 
 
 const client = new elasticsearch.Client({
   // host: `${process.env.ELASTICSEACH_HOSTNAME}:${process.env.ELASTICSEACH_PORT}`,
-  host: `${process.env.ELASTICSEARCH_HOSTNAME}:${process.env.ELASTICSEARCH_PORT}`,
+  host: `${process.env.ES_HOSTNAME}:${process.env.ES_PORT}`,
 });
 
 
@@ -138,7 +138,7 @@ app.use(errorHandler);
 
 // app.listen(process.env.SERVER_PORT, () => {
 const server = app.listen(process.env.SERVER_PORT, async () => {
-  const indexParams = { index: process.env.ELASTICSEARCH_INDEX };
+  const indexParams = { index: process.env.ES_INDEX };
   const indexExists = await client.indices.exists(indexParams);
   if (!indexExists) {
     await client.indices.create(indexParams);

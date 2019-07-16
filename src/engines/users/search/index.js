@@ -9,7 +9,7 @@ function search(req, db, validator, ValidationError) {
     return Promise.reject(validationResults);
   }
   const query = {
-    index: process.env.ELASTICSEARCH_INDEX,
+    index: process.env.ES_INDEX,
     type: 'user',
     /**
      * this is a breaking change in the ES API

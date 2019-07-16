@@ -35,7 +35,7 @@ function create(req, db, validator, ValidationError) {
    * document ) and return the result
    */
   return db.index({
-    index: process.env.ELASTICSEARCH_INDEX,
+    index: process.env.ES_INDEX,
     type: 'user',
     body: req.body,
     // ignore: 404,
