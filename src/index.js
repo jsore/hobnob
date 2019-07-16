@@ -24,23 +24,23 @@ import ValidationError from './validators/errors/validation-error';
 // validators
 import createUserValidator from './validators/users/create'; // create.js
 import searchUserValidator from './validators/users/search';
-// import replaceProfileValidator ...
-// import updateProfileValidator ...
+import replaceProfileValidator from './validators/profile/replace';
+import updateProfileValidator from './validators/profile/update';
 
 // handlers
 import createUserHandler from './handlers/users/create';
 import retrieveUserHandler from './handlers/users/retrieve';
 import searchUserHandler from './handlers/users/search';
-// import replaceProfileHandler ...
-// import updateProfileHandler ...
+import replaceProfileHandler from './handlers/profile/replace';
+import updateProfileHandler from './handlers/profile/update';
 import deleteUserHandler from './handlers/users/delete';
 
 // engines
 import createUserEngine from './engines/users/create';
 import retrieveUserEngine from './engines/users/retrieve';
 import searchUserEngine from './engines/users/search';
-// import replaceProfileEngine ...
-// import updateProfileEngine ...
+import replaceProfileEngine from './engines/profile/replace';
+import updateProfileEngine from './engines/profile/update';
 import deleteUserEngine from './engines/users/delete';
 
 
@@ -60,16 +60,16 @@ const handlerToEngineMap = new Map([
   [createUserHandler, createUserEngine],
   [retrieveUserHandler, retrieveUserEngine],
   [searchUserHandler, searchUserEngine],
-  // [replaceProfileHandler, replaceProfileEngine],
-  // [updateProfileHandler, updateProfileEngine],
+  [replaceProfileHandler, replaceProfileEngine],
+  [updateProfileHandler, updateProfileEngine],
   [deleteUserHandler, deleteUserEngine],
 ]);
 
 const handlerToValidatorMap = new Map([
   [createUserHandler, createUserValidator],
   [searchUserHandler, searchUserValidator],
-  // [replaceProfileHandler, replaceProfileValidator],
-  // [updateProfileHandler, updateProfileValidator],
+  [replaceProfileHandler, replaceProfileValidator],
+  [updateProfileHandler, updateProfileValidator],
 ]);
 
 
@@ -122,15 +122,13 @@ app.get('/users/:userId', injectHandlerDependencies(
   retrieveUserHandler, client, handlerToEngineMap, handlerToValidatorMap, ValidationError
 ));
 /** replace an existing user profile */
-// app.put('/users/:userId/profile', injectHandlerDependencies(
-//   replaceProfileHandler,
-//   client, handlerToEngineMap, handlerToValidatorMap, ValidationError
-// ));
+app.put('/users/:userId/profile', injectHandlerDependencies(
+  replaceProfileHandler, client, handlerToEngineMap, handlerToValidatorMap, ValidationError
+));
 /** update an existing user profile */
-// app.patch('/users/:userId/profile', injectHandlerDependencies(
-//   updateProfileHandler,
-//   client, handlerToEngineMap, handlerToValidatorMap, ValidationError
-// ));
+app.patch('/users/:userId/profile', injectHandlerDependencies(
+  updateProfileHandler, client, handlerToEngineMap, handlerToValidatorMap, ValidationError
+));
 /** delete a user object */
 app.delete('/users/:userId', injectHandlerDependencies(
   deleteUserHandler, client, handlerToEngineMap, handlerToValidatorMap, ValidationError

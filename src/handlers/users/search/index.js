@@ -3,6 +3,7 @@
  */
 
 function search(req, res, db, engine, validator, ValidationError) {
+
   return engine(req, db, validator, ValidationError)
     .then((result) => {
       res.status(200);

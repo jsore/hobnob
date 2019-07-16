@@ -23,6 +23,7 @@ function search(req, db, validator, ValidationError) {
     query.q = req.query.query;
   }
 
+  // console.log(query);
   return db.search(query)
     .then(res => res.hits.hits.map(hit => hit._source))
     .catch(() => Promise.reject(new Error('Internal Server Error')));
