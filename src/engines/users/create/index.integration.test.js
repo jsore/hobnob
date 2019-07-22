@@ -16,7 +16,7 @@ import create from '.';
 
 /** instantiate an Elasticsearch JavaScript client */
 const db = new elasticsearch.Client({
-  host: `${process.env.ELASTICSEARCH_HOSTNAME}:${process.env.ELASTICSEARCH_PORT}`,
+  host: `${process.env.ES_HOSTNAME}:${process.env.ES_PORT}`,
   // host: 'http://localhost:9200', ELASTICSEACH_HOSTNAME
 });
 

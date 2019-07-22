@@ -4,7 +4,7 @@
 
 function retrieve(req, db) {
   return db.get({
-    index: process.env.ELASTICSEARCH_INDEX,
+    index: process.env.ES_INDEX,
     type: 'user',
     id: req.params.userId,
   }).then(res => res._source)

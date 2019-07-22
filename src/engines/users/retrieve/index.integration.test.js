@@ -14,7 +14,7 @@ import elasticsearch from 'elasticsearch';
 import retrieve from '.';
 
 const db = new elasticsearch.Client({
-  host: `${process.env.ELASTICSEARCH_HOSTNAME}:${process.env.ELASTICSEARCH_PORT}`,
+  host: `${process.env.ES_HOSTNAME}:${process.env.ES_PORT}`,
 });
 // console.log(process.env);
 const USER_ID = 'TEST_USER_ID';
@@ -50,7 +50,7 @@ describe('Engine - Users - Retrieve', function () {
     beforeEach(function () {
       /** creates a user with _id set to USER_ID */
       promise = db.index({
-        index: process.env.ELASTICSEARCH_INDEX,
+        index: process.env.ES_INDEX,
         type: 'user',
         id: USER_ID,
         body: RETRIEVE_USER_OBJ,
@@ -59,7 +59,7 @@ describe('Engine - Users - Retrieve', function () {
     });
     afterEach(function () {
       return db.delete({
-        index: process.env.ELASTICSEARCH_INDEX,
+        index: process.env.ES_INDEX,
         type: 'user',
         id: USER_ID,
       });

@@ -11,7 +11,7 @@ function replace(req, db, validator, ValidationError) {
   }
 
   return db.update({
-    index: process.env.ELASTICSEARCH_INDEX,
+    index: process.env.ES_INDEX,
     type: 'user',
     id: req.params.userId,
     body: {

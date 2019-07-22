@@ -8,8 +8,8 @@ import validator from '../../../validators/users/search';
 import search from '.';
 
 const db = new elasticsearch.Client({
-  // host: `${process.env.ELASTICSEARCH_PROTOCOL}://${process.env.ELASTICSEARCH_HOSTNAME}:${process.env.ELASTICSEARCH_PORT}`,
-  host: `${process.env.ELASTICSEARCH_HOSTNAME}:${process.env.ELASTICSEARCH_PORT}`,
+  // host: `${process.env.ES_PROTOCOL}://${process.env.ES_HOSTNAME}:${process.env.ES_PORT}`,
+  host: `${process.env.ES_HOSTNAME}:${process.env.ES_PORT}`,
 });
 
 const SEARCH_TERM = 'apple banana carrot';
@@ -56,7 +56,7 @@ describe('Engine - Users - Search', function () {
     beforeEach(function () {
       // Creates a user with _id set to USER_ID
       return db.index({
-        index: process.env.ELASTICSEARCH_INDEX,
+        index: process.env.ES_INDEX,
         type: 'user',
         id: USER_ID,
         body: USER_OBJ,
@@ -65,7 +65,7 @@ describe('Engine - Users - Search', function () {
     });
     afterEach(function () {
       return db.delete({
-        index: process.env.ELASTICSEARCH_INDEX,
+        index: process.env.ES_INDEX,
         type: 'user',
         id: USER_ID,
         refresh: 'true',

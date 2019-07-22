@@ -58,7 +58,7 @@ describe('Engine - Profile - Update', function () {
       });
       describe('should call client.update()', function () {
         const expectedArgument = {
-          index: process.env.ELASTICSEARCH_INDEX,
+          index: process.env.ES_INDEX,
           type: 'user',
           id: USER_ID,
           body: {

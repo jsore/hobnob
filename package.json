@@ -8,7 +8,7 @@
     "fix": "eslint src --fix",
     "lint": "eslint src",
     "precommit": "yarn run lint",
-    "serve": "yarn run build && dotenv -e envs/.env node dist/index.js",
+    "serve": "yarn run build && dotenv -e envs/.env pm2 start dist/index.js",
     "test": "yarn run test:unit && yarn run test:integration && yarn run test:e2e",
     "test:serve": "dotenv -e envs/test.env -e envs/.env babel-node src/index.js",
     "test:coverage": "nyc --reporter=html --reporter=text yarn run test:coverage:all",
@@ -48,6 +48,7 @@
     "mocha": "^6.1.4",
     "nodemon": "^1.19.0",
     "nyc": "^14.1.1",
+    "pm2": "^3.5.1",
     "rimraf": "^2.6.3",
     "sinon": "^7.3.2",
     "superagent": "^5.0.5"

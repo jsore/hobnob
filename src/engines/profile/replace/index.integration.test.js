@@ -13,8 +13,8 @@ const USER_OBJ = {
   password: 'hunter2',
 };
 const db = new elasticsearch.Client({
-  // host: `${process.env.ELASTICSEARCH_PROTOCOL}://${process.env.ELASTICSEARCH_HOSTNAME}:${process.env.ELASTICSEARCH_PORT}`,
-  host: `${process.env.ELASTICSEARCH_HOSTNAME}:${process.env.ELASTICSEARCH_PORT}`,
+  // host: `${process.env.ES_PROTOCOL}://${process.env.ES_HOSTNAME}:${process.env.ES_PORT}`,
+  host: `${process.env.ES_HOSTNAME}:${process.env.ES_PORT}`,
 });
 
 describe('Engine - Profile - Replace', function () {
@@ -53,7 +53,7 @@ describe('Engine - Profile - Replace', function () {
       beforeEach(function () {
         // Creates a user with _id set to USER_ID
         promise = db.index({
-          index: process.env.ELASTICSEARCH_INDEX,
+          index: process.env.ES_INDEX,
           type: 'user',
           id: USER_ID,
           body: USER_OBJ,
@@ -63,7 +63,7 @@ describe('Engine - Profile - Replace', function () {
       });
       afterEach(function () {
         return db.delete({
-          index: process.env.ELASTICSEARCH_INDEX,
+          index: process.env.ES_INDEX,
           type: 'user',
           id: USER_ID,
         });
@@ -77,7 +77,7 @@ describe('Engine - Profile - Replace', function () {
         });
         it('should have updated the user profile object', function () {
           return db.get({
-            index: process.env.ELASTICSEARCH_INDEX,
+            index: process.env.ES_INDEX,
             type: 'user',
             id: USER_ID,
           })
