@@ -1,5 +1,7 @@
 # user
 .DS_Store
+httpmsgs-failing-tests.txt
+httpmsgs-passing-tests.txt
 
 # https://github.com/github/gitignore/blob/master/Node.gitignore
 
