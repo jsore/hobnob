@@ -55,7 +55,7 @@
   },
   "dependencies": {
     "@babel/polyfill": "^7.4.4",
-    "ajv": "^6.10.0",
+    "ajv": "^6.12.3",
     "body-parser": "^1.19.0",
     "elasticsearch": "^16.1.1",
     "eslint-config-airbnb-base": "^13.1.0",
